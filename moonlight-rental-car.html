@@ -1,0 +1,1976 @@
+<title>Moonlight Rental Car</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* ============================= TOKENS ============================= */
+  :root{
+    --ink-900:#12171d; --ink-800:#1c232b; --ink-700:#2a333d; --ink-600:#4a5568; --ink-500:#6b7686; --ink-400:#8d97a5; --ink-300:#b6bec8;
+    --paper-0:#ffffff; --paper-50:#f5f6f8; --paper-100:#eceef2; --line:#e1e5eb; --line-strong:#cdd3db;
+    --accent:#0e6e63; --accent-600:#0b564d; --accent-100:#e0f0ed; --accent-ink:#06332c;
+    --toll:#a8671a; --toll-600:#8a5414; --toll-100:#faf0dd; --toll-ink:#4d2f0c;
+    --ok:#1e8e5a; --ok-100:#e2f5ea; --ok-ink:#0f5c39;
+    --info:#2563ac; --info-100:#e5eefa; --info-ink:#173e6b;
+    --warn:#b7791f; --warn-100:#faf0dc; --warn-ink:#5c3f0f;
+    --danger:#c43d3d; --danger-100:#fbe7e7; --danger-ink:#7a1f1f;
+    --neutral:#6b7280; --neutral-100:#eef0f2; --neutral-ink:#3a3f47;
+    --shadow-sm:0 1px 2px rgba(18,23,29,.06);
+    --shadow-md:0 6px 20px -6px rgba(18,23,29,.16), 0 2px 6px -2px rgba(18,23,29,.08);
+    --shadow-lg:0 20px 44px -12px rgba(18,23,29,.28);
+    --radius-sm:8px; --radius-md:12px; --radius-lg:16px;
+    --sidebar-w:252px;
+    --sidebar-bg:#12171d; --sidebar-bg-2:#0c0f13;
+    --font-display:'Outfit',ui-sans-serif,system-ui,sans-serif;
+    --font-body:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink-900:#eef1f4; --ink-800:#dde2e8; --ink-700:#c3cbd4; --ink-600:#9aa4b1; --ink-500:#7c8794; --ink-400:#67717d; --ink-300:#454e59;
+      --paper-0:#171c22; --paper-50:#10141a; --paper-100:#1e242c; --line:#2a323b; --line-strong:#3a434e;
+      --accent:#2fb3a1; --accent-600:#3fd0bc; --accent-100:#163430; --accent-ink:#bdf0e6;
+      --toll:#d99a3d; --toll-600:#e8b05e; --toll-100:#33280f; --toll-ink:#f4dcae;
+      --ok:#3ec281; --ok-100:#122f22; --ok-ink:#a8e9c6;
+      --info:#5b9bdb; --info-100:#132638; --info-ink:#bcdcfa;
+      --warn:#d9a33d; --warn-100:#332c11; --warn-ink:#f4e0ae;
+      --danger:#e2686a; --danger-100:#361718; --danger-ink:#f8c9ca;
+      --neutral:#8b93a0; --neutral-100:#242a31; --neutral-ink:#cfd4da;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink-900:#eef1f4; --ink-800:#dde2e8; --ink-700:#c3cbd4; --ink-600:#9aa4b1; --ink-500:#7c8794; --ink-400:#67717d; --ink-300:#454e59;
+    --paper-0:#171c22; --paper-50:#10141a; --paper-100:#1e242c; --line:#2a323b; --line-strong:#3a434e;
+    --accent:#2fb3a1; --accent-600:#3fd0bc; --accent-100:#163430; --accent-ink:#bdf0e6;
+    --toll:#d99a3d; --toll-600:#e8b05e; --toll-100:#33280f; --toll-ink:#f4dcae;
+    --ok:#3ec281; --ok-100:#122f22; --ok-ink:#a8e9c6;
+    --info:#5b9bdb; --info-100:#132638; --info-ink:#bcdcfa;
+    --warn:#d9a33d; --warn-100:#332c11; --warn-ink:#f4e0ae;
+    --danger:#e2686a; --danger-100:#361718; --danger-ink:#f8c9ca;
+    --neutral:#8b93a0; --neutral-100:#242a31; --neutral-ink:#cfd4da;
+    color-scheme: dark;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--paper-50); color:var(--ink-900);
+    font-family:var(--font-body); font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:700; margin:0; text-wrap:balance; color:var(--ink-900);}
+  p{margin:0;}
+  button{font-family:inherit; font-size:inherit; color:inherit;}
+  a{color:inherit;}
+  ::selection{background:var(--accent-100); color:var(--accent-ink);}
+  .num, .mono{font-family:var(--font-mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+  button, input, select{outline-offset:2px;}
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid var(--accent); outline-offset:2px; border-radius:6px;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+  /* ============================= LAYOUT ============================= */
+  #app{min-height:100%;}
+  .sidebar{
+    position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w); background:var(--sidebar-bg);
+    display:flex; flex-direction:column; z-index:40; transition:transform .22s ease;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; padding:20px 20px 16px; color:#fff;
+  }
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px; background:linear-gradient(160deg, var(--accent), var(--accent-600));
+    display:flex; align-items:center; justify-content:center; flex:none; box-shadow:0 2px 6px rgba(0,0,0,.35);
+  }
+  .brand-mark svg{width:19px;height:19px;stroke:#fff;}
+  .brand-text{display:flex; flex-direction:column; line-height:1.2;}
+  .brand-text b{font-family:var(--font-display); font-size:15.5px; font-weight:700; color:#fff;}
+  .brand-text span{font-size:11px; color:#8b96a4; letter-spacing:.02em;}
+  .nav{flex:1; overflow-y:auto; padding:8px 12px;}
+  .nav-section-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:#5f6a78; padding:14px 10px 6px;}
+  .nav-item{
+    display:flex; align-items:center; gap:11px; width:100%; padding:9px 12px; border:none; background:none;
+    border-radius:9px; color:#aab3c0; cursor:pointer; font-size:13.6px; font-weight:500; margin-bottom:2px; text-align:left;
+    position:relative;
+  }
+  .nav-item svg{width:17px;height:17px; flex:none; stroke:currentColor;}
+  .nav-item:hover{background:rgba(255,255,255,.06); color:#fff;}
+  .nav-item.active{background:rgba(47,179,161,.16); color:#fff;}
+  .nav-item.active::before{content:"";position:absolute; left:-12px; top:8px; bottom:8px; width:3px; border-radius:0 4px 4px 0; background:var(--accent-600);}
+  .nav-item .count{margin-left:auto; font-size:11px; background:rgba(255,255,255,.1); color:#cdd4dc; padding:1px 7px; border-radius:20px; font-family:var(--font-mono);}
+  .nav-item.active .count{background:var(--accent-600); color:#06231e;}
+  .nav-footer{padding:12px; border-top:1px solid rgba(255,255,255,.08);}
+  .nav-user{display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px;}
+  .nav-user:hover{background:rgba(255,255,255,.06); cursor:pointer;}
+  .avatar{
+    width:32px; height:32px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center;
+    justify-content:center; font-weight:700; font-size:12.5px; flex:none; font-family:var(--font-display);
+  }
+  .nav-user-text{display:flex; flex-direction:column; line-height:1.25; overflow:hidden;}
+  .nav-user-text b{font-size:12.8px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .nav-user-text span{font-size:11px; color:#8b96a4;}
+
+  .main{margin-left:var(--sidebar-w); display:flex; flex-direction:column; min-height:100vh;}
+  .topbar{
+    position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper-0) 88%, transparent); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; padding:0 24px; height:64px;
+  }
+  .mobile-menu-btn{display:none;}
+  .topbar-search{
+    flex:1; min-width:0; max-width:420px; position:relative; display:flex; align-items:center;
+  }
+  .topbar-search svg{position:absolute; left:12px; width:15px; height:15px; stroke:var(--ink-400); pointer-events:none;}
+  .topbar-search input{
+    width:100%; min-width:0; border:1px solid var(--line); background:var(--paper-50); border-radius:9px; padding:8px 12px 8px 34px;
+    font-size:13.3px; color:var(--ink-900);
+  }
+  .topbar-search input:focus{background:var(--paper-0); border-color:var(--accent);}
+  .topbar-search input::placeholder{color:var(--ink-400);}
+  .topbar-right{display:flex; align-items:center; gap:6px; margin-left:auto;}
+  .topbar-date{font-size:12.6px; color:var(--ink-500); margin-right:8px; white-space:nowrap; font-family:var(--font-mono);}
+  .proto-badge{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-500); background:var(--paper-100); border:1px solid var(--line-strong); padding:4px 9px; border-radius:20px; white-space:nowrap; margin-right:4px;}
+  .proto-badge::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--warn); flex:none;}
+  .icon-btn{
+    width:36px; height:36px; border-radius:9px; border:1px solid transparent; background:none; display:flex; align-items:center;
+    justify-content:center; cursor:pointer; color:var(--ink-600); position:relative;
+  }
+  .icon-btn svg{width:18px; height:18px; stroke:currentColor;}
+  .icon-btn:hover{background:var(--paper-100); color:var(--ink-900);}
+  .icon-btn .dot{position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:50%; background:var(--danger); border:1.5px solid var(--paper-0);}
+  .topbar-avatar{margin-left:6px; cursor:pointer;}
+
+  .page{padding:24px 28px 64px; max-width:1360px; width:100%; margin:0 auto;}
+  .page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;}
+  .page-head h1{font-size:23px;}
+  .page-head .sub{color:var(--ink-500); font-size:13.2px; margin-top:3px;}
+  .page-actions{display:flex; gap:8px; flex-wrap:wrap;}
+
+  /* ============================= BUTTONS ============================= */
+  .btn{
+    display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:9px; border:1px solid var(--line-strong);
+    background:var(--paper-0); color:var(--ink-800); font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap;
+    transition:background .12s, border-color .12s;
+  }
+  .btn svg{width:15px;height:15px; stroke:currentColor;}
+  .btn:hover{background:var(--paper-100);}
+  .btn-primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent-600); border-color:var(--accent-600);}
+  .btn-ghost{border-color:transparent; background:none;}
+  .btn-ghost:hover{background:var(--paper-100);}
+  .btn-sm{padding:6px 10px; font-size:12.4px; border-radius:7px;}
+  .btn-danger-ghost{color:var(--danger); border-color:var(--danger-100); background:var(--danger-100);}
+  .btn-danger-ghost:hover{background:var(--danger-100); filter:brightness(.96);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ============================= CARDS / METRICS ============================= */
+  .grid-metrics{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:18px;}
+  .grid-metrics.gm-4{grid-template-columns:repeat(4,1fr);}
+  .grid-metrics.gm-3{grid-template-columns:repeat(3,1fr);}
+  .metric-card{
+    background:var(--paper-0); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px 16px 14px;
+    display:flex; flex-direction:column; gap:8px; box-shadow:var(--shadow-sm);
+  }
+  .metric-top{display:flex; align-items:center; justify-content:space-between;}
+  .metric-label{font-size:12px; font-weight:600; color:var(--ink-500); text-transform:uppercase; letter-spacing:.03em;}
+  .metric-icon{width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex:none;}
+  .metric-icon svg{width:15px;height:15px;stroke:currentColor;}
+  .metric-value{font-family:var(--font-display); font-size:26px; font-weight:700; letter-spacing:-.01em;}
+  .metric-foot{font-size:12px; color:var(--ink-500); display:flex; align-items:center; gap:5px;}
+  .metric-foot b{color:var(--ink-700); font-weight:600;}
+  .metric-card.accent-ok .metric-icon{background:var(--ok-100); color:var(--ok-ink);}
+  .metric-card.accent-info .metric-icon{background:var(--info-100); color:var(--info-ink);}
+  .metric-card.accent-warn .metric-icon{background:var(--warn-100); color:var(--warn-ink);}
+  .metric-card.accent-danger .metric-icon{background:var(--danger-100); color:var(--danger-ink);}
+  .metric-card.accent-toll .metric-icon{background:var(--toll-100); color:var(--toll-ink);}
+  .metric-card.accent-accent .metric-icon{background:var(--accent-100); color:var(--accent-ink);}
+
+  .panel{background:var(--paper-0); border:1px solid var(--line); border-radius:var(--radius-md); box-shadow:var(--shadow-sm);}
+  .panel-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--line); gap:10px;}
+  .panel-head h3{font-size:15px;}
+  .panel-head .link{font-size:12.6px; font-weight:600; color:var(--accent); cursor:pointer; background:none; border:none; display:flex; align-items:center; gap:4px;}
+  .panel-body{padding:8px 8px;}
+  .panel-body.pad{padding:16px 18px;}
+
+  .row-2col{display:grid; grid-template-columns:1.3fr 1fr; gap:14px; align-items:start; margin-bottom:14px;}
+  .row-2col.even{grid-template-columns:1fr 1fr;}
+
+  .activity-item{display:flex; align-items:center; gap:12px; padding:10px 10px; border-radius:10px;}
+  .activity-item:hover{background:var(--paper-50);}
+  .activity-thumb{width:38px; height:38px; border-radius:9px; background:var(--paper-100); display:flex; align-items:center; justify-content:center; flex:none; color:var(--ink-500);}
+  .activity-thumb svg{width:17px;height:17px; stroke:currentColor;}
+  .activity-thumb.pickup{background:var(--info-100); color:var(--info-ink);}
+  .activity-thumb.return{background:var(--ok-100); color:var(--ok-ink);}
+  .activity-thumb.resv{background:var(--warn-100); color:var(--warn-ink);}
+  .activity-text{flex:1; min-width:0;}
+  .activity-text b{font-size:13.2px; font-weight:600; display:block;}
+  .activity-text span{font-size:12.2px; color:var(--ink-500); display:block; margin-top:1px;}
+  .activity-time{font-size:12px; font-weight:600; color:var(--ink-700); text-align:right; white-space:nowrap; font-family:var(--font-mono);}
+  .activity-time small{display:block; font-weight:500; color:var(--ink-400); font-size:10.5px; font-family:var(--font-body);}
+  .empty-mini{padding:26px 10px; text-align:center; color:var(--ink-400); font-size:12.8px;}
+
+  .alert-item{display:flex; align-items:flex-start; gap:11px; padding:11px 10px; border-radius:10px;}
+  .alert-item:hover{background:var(--paper-50);}
+  .alert-dot{width:30px;height:30px;border-radius:8px; display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px;}
+  .alert-dot svg{width:15px;height:15px;stroke:currentColor;}
+  .alert-dot.danger{background:var(--danger-100); color:var(--danger-ink);}
+  .alert-dot.warn{background:var(--warn-100); color:var(--warn-ink);}
+  .alert-dot.toll{background:var(--toll-100); color:var(--toll-ink);}
+  .alert-text b{font-size:13px; font-weight:600; display:block;}
+  .alert-text span{font-size:12.1px; color:var(--ink-500);}
+
+  /* ============================= FILTER BAR ============================= */
+  .filter-bar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line);}
+  .filter-bar .search-mini{position:relative; flex:1; min-width:180px; max-width:280px;}
+  .filter-bar .search-mini svg{position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; stroke:var(--ink-400);}
+  .filter-bar .search-mini input{width:100%; padding:7px 10px 7px 30px; border:1px solid var(--line); border-radius:8px; background:var(--paper-50); font-size:12.8px;}
+  .filter-bar select{
+    padding:7px 26px 7px 10px; border:1px solid var(--line); border-radius:8px; background:var(--paper-50) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%236b7686" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat right 8px center;
+    font-size:12.6px; color:var(--ink-700); appearance:none; cursor:pointer;
+  }
+  .filter-count{margin-left:auto; font-size:12px; color:var(--ink-500);}
+  .filter-bar .clear-btn{font-size:12px; color:var(--accent); font-weight:600; background:none; border:none; cursor:pointer;}
+  .view-toggle{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .view-toggle button{padding:6px 10px; background:var(--paper-0); border:none; cursor:pointer; display:flex; color:var(--ink-500);}
+  .view-toggle button svg{width:14px;height:14px; stroke:currentColor;}
+  .view-toggle button.active{background:var(--accent-100); color:var(--accent-ink);}
+  .view-toggle button+button{border-left:1px solid var(--line);}
+
+  /* ============================= TABLE ============================= */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; min-width:640px;}
+  thead th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-500); font-weight:600;
+    padding:10px 16px; border-bottom:1px solid var(--line); white-space:nowrap; background:var(--paper-0); position:sticky; top:0;
+  }
+  tbody td{padding:12px 16px; border-bottom:1px solid var(--line); font-size:13.2px; vertical-align:middle;}
+  tbody tr{cursor:pointer; transition:background .1s;}
+  tbody tr:hover{background:var(--paper-50);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.static{cursor:default;}
+  td.num, th.num{text-align:right; font-family:var(--font-mono);}
+  .cell-main{display:flex; align-items:center; gap:10px;}
+  .cell-main b{font-weight:600; font-size:13.2px; display:block;}
+  .cell-main span{font-size:12px; color:var(--ink-500);}
+  .cell-avatar{width:30px;height:30px; border-radius:50%; background:var(--paper-100); color:var(--ink-600); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex:none; font-family:var(--font-display);}
+  .veh-thumb{width:44px; height:32px; border-radius:7px; background:var(--paper-100); display:flex; align-items:center; justify-content:center; flex:none; color:var(--ink-400);}
+  .veh-thumb svg{width:20px;height:20px; stroke:currentColor;}
+  .plate{font-family:var(--font-mono); font-size:11.5px; background:var(--paper-100); border:1px solid var(--line-strong); padding:1.5px 6px; border-radius:4px; letter-spacing:.03em; color:var(--ink-700); display:inline-block;}
+
+  /* ============================= BADGES ============================= */
+  .badge{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:3px 9px 3px 7px; border-radius:20px; white-space:nowrap; line-height:1.5;}
+  .badge::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none;}
+  .badge-ok{background:var(--ok-100); color:var(--ok-ink);}
+  .badge-info{background:var(--info-100); color:var(--info-ink);}
+  .badge-warn{background:var(--warn-100); color:var(--warn-ink);}
+  .badge-danger{background:var(--danger-100); color:var(--danger-ink);}
+  .badge-neutral{background:var(--neutral-100); color:var(--neutral-ink);}
+  .badge-toll{background:var(--toll-100); color:var(--toll-ink);}
+  .badge-accent{background:var(--accent-100); color:var(--accent-ink);}
+
+  /* ============================= FLEET GRID ============================= */
+  .fleet-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(272px,1fr)); gap:14px; padding:16px 18px;}
+  .veh-card{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; cursor:pointer; background:var(--paper-0); transition:box-shadow .15s, transform .15s;}
+  .veh-card:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .veh-photo{height:112px; background:linear-gradient(135deg, var(--paper-100), var(--paper-50)); display:flex; align-items:center; justify-content:center; color:var(--ink-300); position:relative; overflow:hidden;}
+  .veh-photo svg{width:56px; height:56px; stroke:currentColor; stroke-width:1.15; position:relative; z-index:1;}
+  .veh-photo::before{content:""; position:absolute; inset:0; opacity:.5; background-image:radial-gradient(circle at 18% 22%, currentColor 0, transparent 42%), radial-gradient(circle at 82% 78%, currentColor 0, transparent 38%); opacity:.10;}
+  .veh-photo .badge{position:absolute; top:10px; right:10px; z-index:1;}
+  .veh-photo.tone-ok{background:linear-gradient(135deg, var(--ok-100), var(--paper-0)); color:var(--ok-ink);}
+  .veh-photo.tone-info{background:linear-gradient(135deg, var(--info-100), var(--paper-0)); color:var(--info-ink);}
+  .veh-photo.tone-warn{background:linear-gradient(135deg, var(--warn-100), var(--paper-0)); color:var(--warn-ink);}
+  .veh-photo.tone-danger{background:linear-gradient(135deg, var(--danger-100), var(--paper-0)); color:var(--danger-ink);}
+  .veh-photo.tone-toll{background:linear-gradient(135deg, var(--toll-100), var(--paper-0)); color:var(--toll-ink);}
+  .veh-photo.tone-accent{background:linear-gradient(135deg, var(--accent-100), var(--paper-0)); color:var(--accent-ink);}
+  .veh-body{padding:13px 14px 14px;}
+  .veh-title{font-family:var(--font-display); font-weight:700; font-size:14.6px; margin-bottom:1px;}
+  .veh-sub{font-size:12px; color:var(--ink-500); margin-bottom:10px;}
+  .veh-meta{display:flex; align-items:center; justify-content:space-between; font-size:11.8px; color:var(--ink-600); padding-top:10px; border-top:1px solid var(--line);}
+  .veh-meta .plate{margin:0;}
+
+  /* ============================= DRAWER ============================= */
+  .scrim{position:fixed; inset:0; background:rgba(12,16,20,.42); opacity:0; pointer-events:none; transition:opacity .18s; z-index:35;}
+  .scrim.show{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; bottom:0; width:min(480px,100vw); background:var(--paper-0); box-shadow:var(--shadow-lg);
+    transform:translateX(100%); transition:transform .22s cubic-bezier(.22,.68,0,1); z-index:60; display:flex; flex-direction:column;
+  }
+  .drawer.show{transform:translateX(0);}
+  .drawer-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:18px 20px; border-bottom:1px solid var(--line); flex:none;}
+  .drawer-head h2{font-size:17px;}
+  .drawer-head .sub{color:var(--ink-500); font-size:12.5px; margin-top:2px;}
+  .drawer-body{flex:1; overflow-y:auto; padding:18px 20px 32px;}
+  .drawer-close{width:32px;height:32px;border-radius:8px;border:none;background:var(--paper-100);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:var(--ink-600);}
+  .drawer-close svg{width:15px;height:15px;stroke:currentColor;}
+  .drawer-foot{padding:14px 20px; border-top:1px solid var(--line); display:flex; gap:8px; flex:none; justify-content:flex-end;}
+
+  .dsection{margin-bottom:20px;}
+  .dsection:last-child{margin-bottom:0;}
+  .dsection-title{font-size:11px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--ink-500); margin-bottom:10px;}
+  .kv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 14px;}
+  .kv{display:flex; flex-direction:column; gap:2px;}
+  .kv label{font-size:11px; color:var(--ink-500);}
+  .kv b{font-size:13.4px; font-weight:600;}
+  .kv b.num{font-size:13.4px;}
+  .divider{height:1px; background:var(--line); margin:16px 0;}
+  .line-item{display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:13px;}
+  .line-item span{color:var(--ink-600);}
+  .line-item b{font-weight:600; font-family:var(--font-mono);}
+  .line-item.total{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; font-size:14.5px;}
+  .line-item.total b{font-family:var(--font-display); font-size:17px;}
+  .mini-list{display:flex; flex-direction:column; gap:0;}
+  .mini-row{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; row-gap:6px; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:12.8px;}
+  .mini-row:last-child{border-bottom:none;}
+  .mini-row .t1{font-weight:600;}
+  .mini-row .t2{color:var(--ink-500); font-size:11.8px;}
+  .note-box{background:var(--paper-50); border:1px solid var(--line); border-radius:9px; padding:12px 13px; font-size:13px; color:var(--ink-700); line-height:1.55;}
+  .doc-row{display:flex; align-items:center; gap:10px; padding:9px 0;}
+  .doc-row svg{width:16px;height:16px; stroke:var(--ink-500); flex:none;}
+  .doc-row .t1{font-weight:600; font-size:12.8px; flex:1;}
+
+  /* ============================= MODAL ============================= */
+  .modal-wrap{position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; padding:20px;}
+  .modal{background:var(--paper-0); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); width:100%; max-width:440px; transform:scale(.96); opacity:0; transition:transform .16s, opacity .16s;}
+  .modal-wrap.show .modal{transform:scale(1); opacity:1;}
+  .modal-head{padding:20px 22px 4px;}
+  .modal-head h3{font-size:16.5px;}
+  .modal-head p{font-size:12.8px; color:var(--ink-500); margin-top:5px; line-height:1.5;}
+  .modal-body{padding:16px 22px;}
+  .modal-foot{padding:14px 22px 20px; display:flex; gap:8px; justify-content:flex-end;}
+  .field{display:flex; flex-direction:column; gap:5px; margin-bottom:12px;}
+  .field label{font-size:12px; font-weight:600; color:var(--ink-700);}
+  .field select, .field input, .field textarea{padding:9px 11px; border:1px solid var(--line-strong); border-radius:8px; background:var(--paper-0); font-size:13px; font-family:inherit; color:var(--ink-900);}
+  .field textarea{resize:vertical; min-height:64px;}
+
+  /* ============================= TOAST ============================= */
+  #toast-root{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:90; display:flex; flex-direction:column; gap:8px; align-items:center;}
+  .toast{background:var(--ink-900); color:#fff; padding:11px 18px; border-radius:9px; font-size:13px; font-weight:500; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:9px; animation:toastIn .18s ease;}
+  .toast svg{width:15px;height:15px;stroke:var(--accent-600);}
+  @keyframes toastIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ============================= DROPDOWN ============================= */
+  .dropdown{position:absolute; top:52px; right:0; width:320px; background:var(--paper-0); border:1px solid var(--line); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); z-index:45; overflow:hidden; display:none;}
+  .dropdown.show{display:block;}
+  .dropdown-head{padding:13px 16px; border-bottom:1px solid var(--line); font-weight:700; font-size:13.5px; display:flex; justify-content:space-between; align-items:center;}
+  .dropdown-head span{font-size:11.5px; color:var(--ink-500); font-weight:500;}
+  .dropdown-body{max-height:360px; overflow-y:auto;}
+  .user-dropdown{width:200px;}
+  .user-dropdown button{display:flex; align-items:center; gap:9px; width:100%; padding:10px 14px; border:none; background:none; text-align:left; font-size:13px; cursor:pointer; color:var(--ink-700);}
+  .user-dropdown button:hover{background:var(--paper-50);}
+  .user-dropdown button svg{width:15px;height:15px; stroke:currentColor;}
+
+  .avail-strip{display:flex; gap:12px; overflow-x:auto; padding:16px 18px;}
+  .avail-chip{flex:none; width:212px; border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; cursor:pointer; background:var(--paper-0); transition:box-shadow .15s, transform .15s;}
+  .avail-chip:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .avail-chip .veh-photo{height:74px;}
+  .avail-chip .veh-photo svg{width:38px;height:38px;}
+  .avail-chip-body{padding:10px 12px 12px;}
+  .avail-chip-body b{font-family:var(--font-display); font-weight:700; font-size:13.4px; display:block;}
+  .avail-chip-body .sub{font-size:11.5px; color:var(--ink-500); margin-bottom:8px; display:block;}
+  .avail-chip-foot{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; padding-top:8px; border-top:1px solid var(--line); color:var(--ink-600);}
+
+  .section-title-row{display:flex; align-items:center; justify-content:space-between; margin:26px 0 12px;}
+  .section-title-row h2{font-size:16px;}
+
+  .toggle{width:38px; height:22px; border-radius:20px; background:var(--line-strong); position:relative; border:none; cursor:pointer; flex:none;}
+  .toggle::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .15s; box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  .toggle.on{background:var(--accent);}
+  .toggle.on::after{transform:translateX(16px);}
+  .settings-row{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid var(--line);}
+  .settings-row:last-child{border-bottom:none;}
+  .settings-row b{display:block; font-size:13.4px; font-weight:600;}
+  .settings-row span{font-size:12.3px; color:var(--ink-500);}
+
+  /* ============================= MOBILE ============================= */
+  .bottom-nav{display:none;}
+  @media (max-width:960px){
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.open{transform:translateX(0); box-shadow:var(--shadow-lg);}
+    .main{margin-left:0;}
+    .mobile-menu-btn{display:flex;}
+    .grid-metrics, .grid-metrics.gm-3, .grid-metrics.gm-4{grid-template-columns:repeat(2,1fr);}
+    .row-2col, .row-2col.even{grid-template-columns:1fr;}
+    .page{padding:16px 14px 90px;}
+    .topbar{padding:0 14px; gap:10px; height:58px;}
+    .topbar-date{display:none;}
+    .kv-grid{grid-template-columns:1fr 1fr;}
+    .drawer{width:100vw;}
+    .bottom-nav{
+      display:flex; position:fixed; bottom:0; left:0; right:0; height:60px; background:var(--paper-0); border-top:1px solid var(--line);
+      z-index:40; padding:4px 4px calc(env(safe-area-inset-bottom,0px)); box-shadow:0 -4px 14px rgba(0,0,0,.05);
+    }
+    .bottom-nav button{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:none; border:none; color:var(--ink-500); font-size:10px; font-weight:600; cursor:pointer; padding:4px;}
+    .bottom-nav button svg{width:19px;height:19px; stroke:currentColor;}
+    .bottom-nav button.active{color:var(--accent);}
+    .sidebar.open ~ .bottom-nav{display:none;}
+    .main{padding-bottom:0;}
+    body{padding-bottom:0;}
+    .fleet-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; padding:12px;}
+    .filter-bar{padding:12px;}
+    table{min-width:0;}
+    thead{display:none;}
+    .table-wrap{overflow-x:visible;}
+    tbody tr{display:block; border-bottom:1px solid var(--line); padding:12px 14px;}
+    tbody tr:hover{background:none;}
+    tbody td{display:flex; justify-content:space-between; align-items:center; gap:14px; padding:5px 0; border-bottom:none; text-align:right;}
+    tbody td::before{content:attr(data-label); font-size:11px; font-weight:600; color:var(--ink-500); text-transform:uppercase; letter-spacing:.03em; text-align:left;}
+    tbody td.cell-main{justify-content:flex-start;}
+    tbody td.cell-main::before{display:none;}
+    tbody td.cell-main-td{display:block; text-align:left; padding-bottom:8px;}
+    tbody td.cell-main-td::before{display:none;}
+    .metric-value{font-size:22px;}
+    .panel-head{padding:14px 14px;}
+    .dropdown{width:280px; right:-8px;}
+  }
+  @media (max-width:520px){
+    .grid-metrics, .grid-metrics.gm-3, .grid-metrics.gm-4{grid-template-columns:1fr 1fr;}
+  }
+</style>
+
+<div id="app">
+  <div class="scrim" id="scrim" onclick="closeAllOverlays()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.8A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.2L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4z"/><circle cx="7.5" cy="16.5" r=".6" fill="#fff"/><circle cx="16.5" cy="16.5" r=".6" fill="#fff"/></svg>
+      </div>
+      <div class="brand-text"><b>Moonlight Rental Car</b><span>Operations Console</span></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="nav-footer">
+      <button class="nav-item" id="settingsNavBtn" onclick="navigate('settings')" style="margin-bottom:6px;" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15 1.65 1.65 0 0 0 3.17 14H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <div class="nav-user" onclick="toggleDropdown('userMenu', event)" style="position:relative;">
+        <div class="avatar">LC</div>
+        <div class="nav-user-text"><b>Lua Coelho</b><span>Administrator</span></div>
+        <div class="user-dropdown dropdown" id="userMenu" style="top:auto; bottom:52px; left:0; right:auto;">
+          <button onclick="navigate('settings')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-7h-6M7 12H1"/></svg>Account settings</button>
+          <button onclick="toast('This is a prototype — sign-out is disabled.')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-menu-btn" onclick="toggleSidebar()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search vehicles, customers, rentals…" onkeydown="if(event.key==='Enter')toast('Search is a prototype control in this demo.')">
+      </div>
+      <div class="topbar-right">
+        <span class="proto-badge" title="This is a visual prototype — not connected to a live system.">Prototype</span>
+        <span class="topbar-date" id="topbarDate"></span>
+        <div style="position:relative;">
+          <button class="icon-btn" onclick="toggleDropdown('alertsMenu', event)" aria-label="Alerts">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <span class="dot" id="alertsDot"></span>
+          </button>
+          <div class="dropdown" id="alertsMenu">
+            <div class="dropdown-head">Alerts <span id="alertsCountLbl"></span></div>
+            <div class="dropdown-body" id="alertsDropdownBody"></div>
+          </div>
+        </div>
+        <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle theme" id="themeBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/></svg>
+        </button>
+        <div class="avatar topbar-avatar" onclick="toggleDropdown('userMenu2', event)" style="position:relative;width:34px;height:34px;">
+          LC
+          <div class="user-dropdown dropdown" id="userMenu2">
+            <button onclick="navigate('settings')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-7h-6M7 12H1"/></svg>Account settings</button>
+            <button onclick="toast('This is a prototype — sign-out is disabled.')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="page"></main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<div id="drawer-layer"></div>
+<div id="modal-layer"></div>
+<div id="toast-root"></div>
+
+<script>
+/* =========================================================================
+   DATA LAYER
+   In production this whole block becomes a thin client over a real API
+   (e.g. `const api = { getVehicles: () => fetch('/api/vehicles')… }`).
+   Every render function below only touches the `api.*` getters, so wiring
+   a database later means replacing DATA + api, not the UI layer.
+   ========================================================================= */
+const TODAY = new Date(2026, 8, 8); // Sep 8, 2026 — "today" for this demo
+
+const DATA = {
+  vehicles: [
+    // ---- Rented (8) ----
+    {id:'V01', make:'Toyota', model:'Corolla', year:2024, plate:'ABC-1234', category:'Sedan', mileage:8412, status:'Rented', color:'Silver', dailyRate:78, lastService:'2026-07-02', nextService:'2026-09-20', currentCustomer:'C01', currentRental:'R01'},
+    {id:'V02', make:'Dodge', model:'Charger', year:2022, plate:'CHG-5543', category:'Sports Sedan', mileage:28960, status:'Rented', color:'Black', dailyRate:97, lastService:'2026-07-18', nextService:'2026-09-28', currentCustomer:'C03', currentRental:'R02'},
+    {id:'V03', make:'Honda', model:'Civic', year:2023, plate:'CIV-3391', category:'Sedan', mileage:15220, status:'Rented', color:'Blue', dailyRate:74, lastService:'2026-08-30', nextService:'2026-10-15', currentCustomer:'C04', currentRental:'R03'},
+    {id:'V04', make:'Chevrolet', model:'Malibu', year:2023, plate:'MAL-5567', category:'Sedan', mileage:12880, status:'Rented', color:'White', dailyRate:80, lastService:'2026-06-25', nextService:'2026-09-25', currentCustomer:'C05', currentRental:'R04'},
+    {id:'V05', make:'Jeep', model:'Wrangler', year:2022, plate:'JWR-8842', category:'SUV', mileage:33410, status:'Rented', color:'Green', dailyRate:112, lastService:'2026-07-10', nextService:'2026-09-10', currentCustomer:'C06', currentRental:'R05'},
+    {id:'V06', make:'Nissan', model:'Altima', year:2023, plate:'ALT-2290', category:'Sedan', mileage:18760, status:'Rented', color:'Gray', dailyRate:76, lastService:'2026-07-22', nextService:'2026-10-01', currentCustomer:'C07', currentRental:'R06'},
+    {id:'V07', make:'Kia', model:'Sportage', year:2023, plate:'KSP-4471', category:'SUV', mileage:9340, status:'Rented', color:'Red', dailyRate:98, lastService:'2026-09-02', nextService:'2026-11-15', currentCustomer:'C08', currentRental:'R07'},
+    {id:'V08', make:'Hyundai', model:'Tucson', year:2024, plate:'TUC-1183', category:'SUV', mileage:5120, status:'Rented', color:'White', dailyRate:102, lastService:'2026-08-05', nextService:'2026-11-05', currentCustomer:'C09', currentRental:'R08'},
+    // ---- Reserved (3) ----
+    {id:'V09', make:'Chevrolet', model:'Tahoe', year:2023, plate:'TAH-7723', category:'Full-Size SUV', mileage:27050, status:'Reserved', color:'Black', dailyRate:135, lastService:'2026-07-14', nextService:'2026-09-30', currentCustomer:'C02', currentRental:null},
+    {id:'V10', make:'Ford', model:'Explorer', year:2023, plate:'EXP-9034', category:'SUV', mileage:14600, status:'Reserved', color:'Blue', dailyRate:118, lastService:'2026-08-01', nextService:'2026-10-20', currentCustomer:'C10', currentRental:null},
+    {id:'V11', make:'Toyota', model:'Camry', year:2024, plate:'CAM-6620', category:'Sedan', mileage:3980, status:'Reserved', color:'Silver', dailyRate:88, lastService:'2026-08-12', nextService:'2026-11-12', currentCustomer:'C11', currentRental:null},
+    // ---- Maintenance (2) ----
+    {id:'V12', make:'Nissan', model:'Rogue', year:2023, plate:'ROG-5510', category:'SUV', mileage:41220, status:'Maintenance', color:'Gray', dailyRate:92, lastService:'2026-06-01', nextService:'2026-09-05', currentCustomer:null, currentRental:null},
+    {id:'V13', make:'Chevrolet', model:'Equinox', year:2022, plate:'EQX-7788', category:'SUV', mileage:38900, status:'Maintenance', color:'White', dailyRate:88, lastService:'2026-06-10', nextService:'2026-09-08', currentCustomer:null, currentRental:null},
+    // ---- Available (11) ----
+    {id:'V14', make:'Ford', model:'Mustang', year:2022, plate:'DEF-4560', category:'Convertible', mileage:21530, status:'Available', color:'Yellow', dailyRate:129, lastService:'2026-08-20', nextService:'2026-09-25', currentCustomer:null, currentRental:null},
+    {id:'V15', make:'Toyota', model:'Corolla', year:2023, plate:'COR-8834', category:'Sedan', mileage:19540, status:'Available', color:'White', dailyRate:74, lastService:'2026-07-28', nextService:'2026-10-10', currentCustomer:null, currentRental:null},
+    {id:'V16', make:'Honda', model:'Accord', year:2024, plate:'ACC-2201', category:'Sedan', mileage:6720, status:'Available', color:'Black', dailyRate:84, lastService:'2026-08-15', nextService:'2026-11-15', currentCustomer:null, currentRental:null},
+    {id:'V17', make:'Toyota', model:'Camry', year:2023, plate:'CAM-4412', category:'Sedan', mileage:22310, status:'Available', color:'Silver', dailyRate:82, lastService:'2026-08-02', nextService:'2026-10-25', currentCustomer:null, currentRental:null},
+    {id:'V18', make:'Kia', model:'Telluride', year:2023, plate:'TEL-3399', category:'Full-Size SUV', mileage:17880, status:'Available', color:'Blue', dailyRate:124, lastService:'2026-07-30', nextService:'2026-10-30', currentCustomer:null, currentRental:null},
+    {id:'V19', make:'Hyundai', model:'Elantra', year:2024, plate:'ELA-9021', category:'Economy', mileage:4150, status:'Available', color:'Red', dailyRate:68, lastService:'2026-08-18', nextService:'2026-11-18', currentCustomer:null, currentRental:null},
+    {id:'V20', make:'Mazda', model:'CX-5', year:2023, plate:'CX5-2267', category:'SUV', mileage:20430, status:'Available', color:'Gray', dailyRate:96, lastService:'2026-07-20', nextService:'2026-10-20', currentCustomer:null, currentRental:null},
+    {id:'V21', make:'Subaru', model:'Outback', year:2023, plate:'OUT-6650', category:'SUV', mileage:16290, status:'Available', color:'Green', dailyRate:99, lastService:'2026-08-08', nextService:'2026-11-08', currentCustomer:null, currentRental:null},
+    {id:'V22', make:'Honda', model:'Civic', year:2024, plate:'CIV-0087', category:'Sedan', mileage:2340, status:'Available', color:'White', dailyRate:76, lastService:'2026-08-22', nextService:'2026-11-22', currentCustomer:null, currentRental:null},
+    {id:'V23', make:'Nissan', model:'Rogue', year:2024, plate:'ROG-9945', category:'SUV', mileage:3610, status:'Available', color:'Black', dailyRate:94, lastService:'2026-08-25', nextService:'2026-11-25', currentCustomer:null, currentRental:null},
+    {id:'V24', make:'GMC', model:'Terrain', year:2023, plate:'TER-1128', category:'SUV', mileage:24780, status:'Available', color:'Silver', dailyRate:100, lastService:'2026-07-05', nextService:'2026-09-12', currentCustomer:null, currentRental:null},
+  ],
+
+  customers: [
+    {id:'C01', name:'Maria Oliveira', phone:'(305) 555-0142', email:'maria.oliveira@gmail.com', license:'FL', licenseNo:'M410-887-52-201', address:'2140 SW 8th St, Miami, FL 33135', joined:'2025-11-02', status:'Active', docStatus:'Verified', notes:'Prefers sedans. Repeat customer, always returns vehicles clean and on time.'},
+    {id:'C02', name:'Carlos Mendes', phone:'(786) 555-0119', email:'carlos.mendes@outlook.com', license:'Foreign (BR)', licenseNo:'BR-CNH-5591023', address:'1500 Ocean Dr, Miami Beach, FL 33139', joined:'2026-01-15', status:'Active', docStatus:'Verified', notes:'International license — passport on file. Tips well, low-maintenance guest.'},
+    {id:'C03', name:'Bruno Carvalho', phone:'(407) 555-0187', email:'bruno.carvalho@yahoo.com', license:'FL', licenseNo:'C220-114-63-198', address:'880 N Orange Ave, Orlando, FL 32801', joined:'2025-06-30', status:'Active', docStatus:'Verified', notes:'Requested sport models twice — good upsell candidate for the Mustang.'},
+    {id:'C04', name:'Ana Beatriz Souza', phone:'(954) 555-0163', email:'ana.souza@gmail.com', license:'FL', licenseNo:'S330-552-91-114', address:'410 Las Olas Blvd, Fort Lauderdale, FL 33301', joined:'2025-09-12', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C05', name:'Rafael Lima', phone:'(305) 555-0176', email:'rafael.lima@hotmail.com', license:'FL', licenseNo:'L110-882-40-233', address:'3050 Biscayne Blvd, Miami, FL 33137', joined:'2024-12-05', status:'Active', docStatus:'Verified', notes:'Payment on file has bounced once before — verify card at pickup.'},
+    {id:'C06', name:'Diego Santos', phone:'(321) 555-0154', email:'diego.santos@gmail.com', license:'Foreign (BR)', licenseNo:'BR-CNH-3387711', address:'220 International Dr, Orlando, FL 32819', joined:'2026-02-20', status:'Active', docStatus:'Pending', notes:'Currently past due for return — follow up directly, phone goes to voicemail.'},
+    {id:'C07', name:'Fernanda Costa', phone:'(786) 555-0128', email:'fernanda.costa@gmail.com', license:'FL', licenseNo:'C990-227-18-455', address:'1801 Brickell Ave, Miami, FL 33129', joined:'2025-03-18', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C08', name:'Lucas Pereira', phone:'(954) 555-0141', email:'lucas.pereira@outlook.com', license:'FL', licenseNo:'P667-390-25-871', address:'900 SE 3rd Ave, Fort Lauderdale, FL 33316', joined:'2025-07-22', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C09', name:'Patrícia Gomes', phone:'(407) 555-0198', email:'patricia.gomes@gmail.com', license:'FL', licenseNo:'G551-604-77-320', address:'6000 Universal Blvd, Orlando, FL 32819', joined:'2025-10-09', status:'Active', docStatus:'Verified', notes:'Corporate travel — books through a travel agency most months.'},
+    {id:'C10', name:'Juliana Alves', phone:'(305) 555-0135', email:'juliana.alves@gmail.com', license:'Foreign (BR)', licenseNo:'BR-CNH-9012234', address:'400 Alton Rd, Miami Beach, FL 33139', joined:'2026-03-11', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C11', name:'Marcos Vinícius', phone:'(689) 555-0122', email:'marcos.vinicius@hotmail.com', license:'Foreign (BR)', licenseNo:'BR-CNH-2245981', address:'7575 Republic Dr, Kissimmee, FL 34747', joined:'2026-04-02', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C12', name:'Camila Rocha', phone:'(305) 555-0109', email:'camila.rocha@gmail.com', license:'FL', licenseNo:'R118-773-05-660', address:'1200 Anastasia Ave, Coral Gables, FL 33134', joined:'2024-08-14', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C13', name:'Thiago Barros', phone:'(813) 555-0177', email:'thiago.barros@gmail.com', license:'FL', licenseNo:'B334-991-62-708', address:'5100 W Kennedy Blvd, Tampa, FL 33609', joined:'2025-05-27', status:'Active', docStatus:'Verified', notes:''},
+    {id:'C14', name:'Beatriz Almeida', phone:'(407) 555-0166', email:'beatriz.almeida@yahoo.com', license:'FL', licenseNo:'A882-447-38-190', address:'8102 International Dr, Orlando, FL 32819', joined:'2025-01-09', status:'Inactive', docStatus:'Pending', notes:'Cancelled last two bookings — confirm card before next reservation.'},
+    {id:'C15', name:'Eduardo Nascimento', phone:'(954) 555-0193', email:'eduardo.nascimento@gmail.com', license:'Foreign (BR)', licenseNo:'BR-CNH-7743102', address:'2201 W Broward Blvd, Fort Lauderdale, FL 33312', joined:'2026-05-19', status:'Active', docStatus:'Verified', notes:''},
+  ],
+
+  rentals: [
+    {id:'R01', vehicle:'V01', customer:'C01', pickup:'2026-09-05', dropoff:'2026-09-08', dropoffTime:'2:00 PM', dailyRate:78, extras:35, sunpass:10.17, deposit:200, status:'Active', payment:'Paid'},
+    {id:'R02', vehicle:'V02', customer:'C03', pickup:'2026-09-04', dropoff:'2026-09-10', dailyRate:97, extras:0, sunpass:13.52, deposit:300, status:'Active', payment:'Paid'},
+    {id:'R03', vehicle:'V03', customer:'C04', pickup:'2026-09-06', dropoff:'2026-09-09', dailyRate:74, extras:20, sunpass:10.67, deposit:200, status:'Active', payment:'Paid'},
+    {id:'R04', vehicle:'V04', customer:'C05', pickup:'2026-09-05', dropoff:'2026-09-12', dailyRate:80, extras:0, sunpass:9.15, deposit:250, status:'Active', payment:'Overdue'},
+    {id:'R05', vehicle:'V05', customer:'C06', pickup:'2026-09-01', dropoff:'2026-09-07', dailyRate:112, extras:60, sunpass:14.50, deposit:350, status:'Late', payment:'Paid'},
+    {id:'R06', vehicle:'V06', customer:'C07', pickup:'2026-09-05', dropoff:'2026-09-09', dailyRate:76, extras:0, sunpass:4.85, deposit:200, status:'Active', payment:'Paid'},
+    {id:'R07', vehicle:'V07', customer:'C08', pickup:'2026-09-06', dropoff:'2026-09-13', dailyRate:98, extras:45, sunpass:6.85, deposit:300, status:'Active', payment:'Paid'},
+    {id:'R08', vehicle:'V08', customer:'C09', pickup:'2026-09-05', dropoff:'2026-09-10', dailyRate:102, extras:0, sunpass:7.42, deposit:300, status:'Active', payment:'Paid'},
+    {id:'R09', vehicle:'V14', customer:'C02', pickup:'2026-08-28', dropoff:'2026-09-07', dailyRate:129, extras:0, sunpass:10.95, deposit:300, status:'Completed', payment:'Paid'},
+    {id:'R10', vehicle:'V17', customer:'C12', pickup:'2026-08-20', dropoff:'2026-08-25', dailyRate:82, extras:0, sunpass:5.20, deposit:250, status:'Completed', payment:'Paid'},
+    {id:'R11', vehicle:'V22', customer:'C14', pickup:'2026-09-11', dropoff:'2026-09-14', dailyRate:76, extras:0, sunpass:0, deposit:200, status:'Cancelled', payment:'Refunded'},
+    {id:'R12', vehicle:'V23', customer:'C15', pickup:'2026-09-14', dropoff:'2026-09-18', dailyRate:94, extras:0, sunpass:0, deposit:250, status:'Upcoming', payment:'Pending'},
+  ],
+
+  reservations: [
+    {id:'S01', vehicle:'V09', customer:'C02', pickup:'2026-09-08', pickupTime:'5:30 PM', dropoff:'2026-09-12', status:'Confirmed'},
+    {id:'S02', vehicle:'V10', customer:'C10', pickup:'2026-09-09', pickupTime:'11:00 AM', dropoff:'2026-09-14', status:'Confirmed'},
+    {id:'S03', vehicle:'V11', customer:'C11', pickup:'2026-09-10', pickupTime:'1:15 PM', dropoff:'2026-09-13', status:'Confirmed'},
+    {id:'S04', vehicle:'V15', customer:'C12', pickup:'2026-09-15', pickupTime:'10:00 AM', dropoff:'2026-09-18', status:'Pending'},
+    {id:'S05', vehicle:'V18', customer:'C13', pickup:'2026-09-16', pickupTime:'3:30 PM', dropoff:'2026-09-20', status:'Pending'},
+    {id:'S06', vehicle:'V20', customer:'C14', pickup:'2026-09-18', pickupTime:'9:00 AM', dropoff:'2026-09-22', status:'Confirmed'},
+    {id:'S07', vehicle:'V21', customer:'C15', pickup:'2026-09-11', pickupTime:'4:00 PM', dropoff:'2026-09-15', status:'Cancelled'},
+    {id:'S08', vehicle:'V06', customer:'C07', pickup:'2026-09-05', pickupTime:'12:00 PM', dropoff:'2026-09-09', status:'Converted', rental:'R06'},
+    {id:'S09', vehicle:'V19', customer:'C13', pickup:'2026-09-08', pickupTime:'6:00 PM', dropoff:'2026-09-10', status:'Pending'},
+  ],
+
+  sunpass: [
+    {id:'T01', date:'2026-09-06', vehicle:'V01', customer:'C01', rental:'R01', location:'FL Turnpike', amount:7.42, status:'Pending'},
+    {id:'T02', date:'2026-09-07', vehicle:'V14', customer:'C02', rental:'R09', location:'Miami Expressway (836)', amount:4.85, status:'Paid'},
+    {id:'T03', date:'2026-09-03', vehicle:'V02', customer:'C03', rental:'R02', location:'I-95 Express', amount:6.10, status:'Charged'},
+    {id:'T04', date:'2026-09-04', vehicle:'V02', customer:'C03', rental:'R02', location:'FL Turnpike', amount:7.42, status:'Charged'},
+    {id:'T05', date:'2026-09-04', vehicle:'V03', customer:'C04', rental:'R03', location:'Sawgrass Expressway', amount:3.25, status:'Paid'},
+    {id:'T06', date:'2026-09-03', vehicle:'V03', customer:'C04', rental:'R03', location:'FL Turnpike', amount:7.42, status:'Paid'},
+    {id:'T07', date:'2026-09-05', vehicle:'V04', customer:'C05', rental:'R04', location:'FL Turnpike', amount:9.15, status:'Pending'},
+    {id:'T08', date:'2026-08-30', vehicle:'V05', customer:'C06', rental:'R05', location:'Alligator Alley (I-75)', amount:12.50, status:'Charged'},
+    {id:'T09', date:'2026-09-01', vehicle:'V05', customer:'C06', rental:'R05', location:'Card Sound Road', amount:2.00, status:'Pending'},
+    {id:'T10', date:'2026-09-05', vehicle:'V06', customer:'C07', rental:'R06', location:'Miami Expressway (836)', amount:4.85, status:'Paid'},
+    {id:'T11', date:'2026-09-06', vehicle:'V07', customer:'C08', rental:'R07', location:'Veterans Expressway', amount:3.60, status:'Charged'},
+    {id:'T12', date:'2026-09-07', vehicle:'V07', customer:'C08', rental:'R07', location:'Sawgrass Expressway', amount:3.25, status:'Pending'},
+    {id:'T13', date:'2026-09-06', vehicle:'V08', customer:'C09', rental:'R08', location:'FL Turnpike', amount:7.42, status:'Paid'},
+    {id:'T14', date:'2026-09-02', vehicle:'V17', customer:'C12', rental:'R10', location:'Beachline Expressway', amount:5.20, status:'Disputed'},
+    {id:'T15', date:'2026-08-29', vehicle:'V14', customer:'C02', rental:'R09', location:'I-95 Express', amount:6.10, status:'Paid'},
+    {id:'T16', date:'2026-09-08', vehicle:'V01', customer:'C01', rental:null, location:'Selmon Expressway', amount:2.75, status:'Pending'},
+  ],
+
+  payments: [
+    {id:'P01', customer:'C01', rental:'R01', description:'Rental charge — 3 days', amount:234.00, method:'Visa •••• 4471', date:'2026-09-05', status:'Paid'},
+    {id:'P02', customer:'C01', rental:'R01', description:'Security deposit hold', amount:200.00, method:'Visa •••• 4471', date:'2026-09-05', status:'Pending'},
+    {id:'P03', customer:'C03', rental:'R02', description:'Rental charge — 6 days', amount:582.00, method:'Mastercard •••• 5588', date:'2026-09-04', status:'Paid'},
+    {id:'P04', customer:'C04', rental:'R03', description:'Rental charge — 3 days + child seat', amount:242.00, method:'Amex •••• 1005', date:'2026-09-06', status:'Paid'},
+    {id:'P05', customer:'C05', rental:'R04', description:'Rental charge — 7 days', amount:560.00, method:'Debit Card •••• 7702', date:'2026-09-05', status:'Overdue'},
+    {id:'P06', customer:'C06', rental:'R05', description:'Rental charge — 6 days + GPS', amount:732.00, method:'Visa •••• 7790', date:'2026-09-01', status:'Paid'},
+    {id:'P07', customer:'C06', rental:'R05', description:'Late return fee (1 day, ongoing)', amount:95.00, method:'Visa •••• 7790', date:'2026-09-08', status:'Pending'},
+    {id:'P08', customer:'C07', rental:'R06', description:'Rental charge — 4 days', amount:304.00, method:'Mastercard •••• 3321', date:'2026-09-05', status:'Paid'},
+    {id:'P09', customer:'C08', rental:'R07', description:'Rental charge — 7 days + extra driver', amount:731.00, method:'Visa •••• 9081', date:'2026-09-06', status:'Paid'},
+    {id:'P10', customer:'C09', rental:'R08', description:'Rental charge — 5 days', amount:510.00, method:'Cash', date:'2026-09-05', status:'Paid'},
+    {id:'P11', customer:'C02', rental:'R09', description:'Security deposit refund', amount:300.00, method:'Mastercard •••• 2290', date:'2026-09-07', status:'Refunded'},
+    {id:'P12', customer:'C12', rental:'R10', description:'Rental charge — 5 days', amount:410.00, method:'Visa •••• 4471', date:'2026-08-25', status:'Paid'},
+    {id:'P13', customer:'C14', rental:'R11', description:'Cancellation refund', amount:150.00, method:'Amex •••• 1188', date:'2026-09-03', status:'Refunded'},
+  ],
+
+  maintenance: [
+    {id:'M01', vehicle:'V12', type:'Brake Inspection', mileage:41220, dueDate:'2026-09-05', status:'Overdue', notes:'Customer reported squeaking on last return. Vehicle held until cleared.'},
+    {id:'M02', vehicle:'V13', type:'Oil Change & Tire Rotation', mileage:38900, dueDate:'2026-09-08', status:'Due Soon', notes:'Scheduled with Coral Way Auto Center this afternoon.'},
+    {id:'M03', vehicle:'V01', type:'Oil Change', mileage:9800, dueDate:'2026-09-20', status:'Upcoming', notes:''},
+    {id:'M04', vehicle:'V14', type:'General Inspection', mileage:22000, dueDate:'2026-09-25', status:'Upcoming', notes:'Annual state inspection due.'},
+    {id:'M05', vehicle:'V05', type:'Tire Rotation', mileage:34000, dueDate:'2026-09-10', status:'Due Soon', notes:''},
+    {id:'M06', vehicle:'V03', type:'Brake Inspection', mileage:14800, dueDate:'2026-08-30', status:'Completed', notes:'Pads at 70% — no action needed until next cycle.'},
+    {id:'M07', vehicle:'V07', type:'Oil Change', mileage:8900, dueDate:'2026-09-02', status:'Completed', notes:''},
+    {id:'M08', vehicle:'V24', type:'General Inspection', mileage:24780, dueDate:'2026-09-12', status:'Due Soon', notes:''},
+  ],
+};
+
+const api = {
+  getVehicles: () => DATA.vehicles,
+  getVehicle: (id) => DATA.vehicles.find(v => v.id === id),
+  getCustomers: () => DATA.customers,
+  getCustomer: (id) => DATA.customers.find(c => c.id === id),
+  getRentals: () => DATA.rentals,
+  getRental: (id) => DATA.rentals.find(r => r.id === id),
+  getReservations: () => DATA.reservations,
+  getReservation: (id) => DATA.reservations.find(r => r.id === id),
+  getSunpass: () => DATA.sunpass,
+  getPayments: () => DATA.payments,
+  getMaintenance: () => DATA.maintenance,
+};
+</script>
+<script>
+/* =========================================================================
+   UTILITIES
+   ========================================================================= */
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function parseISO(iso){ const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d); }
+function fmtDate(iso){ if(!iso) return '—'; const d = parseISO(iso); return `${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}, ${d.getFullYear()}`; }
+function fmtDateShort(iso){ if(!iso) return '—'; const d = parseISO(iso); return `${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}`; }
+function fmtMoney(n){ if(n==null) return '—'; const neg = n<0; n=Math.abs(n); const s = n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); return (neg?'-':'')+'$'+s; }
+function fmtMoneyShort(n){ if(n==null) return '—'; if(Math.abs(n)>=1000) return '$'+(n/1000).toFixed(1).replace(/\.0$/,'')+'k'; return fmtMoney(n); }
+function daysBetween(a,b){ return Math.round((parseISO(b)-parseISO(a))/86400000); }
+function daysFromToday(iso){ return Math.round((parseISO(iso)-TODAY)/86400000); }
+function initials(name){ return name.split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const STATUS_CLASS = {
+  Available:'ok', Rented:'info', Reserved:'warn', Maintenance:'danger',
+  Active:'info', Completed:'ok', Late:'danger', Cancelled:'neutral', Upcoming:'warn',
+  Confirmed:'info', Pending:'warn', Converted:'accent',
+  Paid:'ok', Overdue:'danger', Refunded:'neutral', Charged:'info', Disputed:'danger',
+  'Due Soon':'warn', Inactive:'neutral',
+};
+function badge(status, label){
+  const cls = STATUS_CLASS[status] || 'neutral';
+  return `<span class="badge badge-${cls}">${esc(label||status)}</span>`;
+}
+
+function vehicleLabel(v){ return `${v.make} ${v.model} ${v.year}`; }
+function vehicleById(id){ return api.getVehicle(id); }
+function customerById(id){ return api.getCustomer(id); }
+
+function rentalTotal(r){
+  const days = Math.max(1, daysBetween(r.pickup, r.dropoff));
+  return days * r.dailyRate + (r.extras||0) + (r.sunpass||0);
+}
+function rentalDays(r){ return Math.max(1, daysBetween(r.pickup, r.dropoff)); }
+
+function customerRentalCount(cid){ return DATA.rentals.filter(r => r.customer===cid && r.status!=='Cancelled').length; }
+function customerTotalSpent(cid){
+  return DATA.rentals.filter(r=>r.customer===cid && r.status!=='Cancelled').reduce((s,r)=>s+rentalTotal(r),0);
+}
+
+/* Vehicle icon (used as photo placeholder — keeps the prototype backend-free
+   while still reading as a real fleet, not literal stock photography) */
+function vehiclePhotoTone(category){
+  const map = {'Sedan':'info','SUV':'ok','Full-Size SUV':'accent','Sports Sedan':'danger','Economy':'toll','Convertible':'warn'};
+  return map[category] || 'ok';
+}
+function vehicleIcon(category){
+  const suv = (category||'').toLowerCase().includes('suv') || (category||'').toLowerCase().includes('tahoe');
+  if(suv){
+    return `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 15.5l1.3-5.6a2 2 0 0 1 1.95-1.55h11.9a2 2 0 0 1 1.95 1.55l1.3 5.6"/><path d="M2.5 15.5h19v2.7a1 1 0 0 1-1 1h-1.2a1 1 0 0 1-1-1v-.9H5.7v.9a1 1 0 0 1-1 1H3.5a1 1 0 0 1-1-1v-2.7z"/><path d="M5 8.6l1.4-2.7A2 2 0 0 1 8.2 4.8h7.6a2 2 0 0 1 1.8 1.1l1.4 2.7"/><circle cx="6.6" cy="18.2" r=".7" fill="currentColor" stroke="none"/><circle cx="17.4" cy="18.2" r=".7" fill="currentColor" stroke="none"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.5l1.7-5.1A2.2 2.2 0 0 1 6.8 7h10.4a2.2 2.2 0 0 1 2.1 1.4l1.7 5.1"/><path d="M3 13.5h18v3.6a1 1 0 0 1-1 1h-1.1a1 1 0 0 1-1-1v-1H6.1v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3.6z"/><circle cx="7" cy="17.8" r=".7" fill="currentColor" stroke="none"/><circle cx="17" cy="17.8" r=".7" fill="currentColor" stroke="none"/><path d="M6.5 13.5l.8-3.2h9.4l.8 3.2"/></svg>`;
+}
+
+const ICONS = {
+  dashboard:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>`,
+  fleet:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.8A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.2L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4z"/><circle cx="7.5" cy="16.5" r=".6" fill="currentColor"/><circle cx="16.5" cy="16.5" r=".6" fill="currentColor"/></svg>`,
+  rentals:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3a4 4 0 1 0 2.8 6.8L21 13.5"/><path d="M17.3 9.8 15 12"/><path d="M3 21l3.6-3.6"/><path d="M8.2 15.8 5 19"/></svg>`,
+  reservations:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M8 14l2 2 4-4"/></svg>`,
+  customers:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19c.7-3.4 3.2-5.3 6.2-5.3s5.5 1.9 6.2 5.3"/><path d="M16 4.3a3.2 3.2 0 0 1 0 6.2"/><path d="M17.5 13.9c2.4.6 4 2.4 4.5 5.1"/></svg>`,
+  sunpass:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c2-5 3-11 3-11h12s1 6 3 11"/><path d="M3 17h18"/><path d="M8 6l-1.2 11M16 6l1.2 11M12 6v11"/></svg>`,
+  payments:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><path d="M6 14.5h4"/></svg>`,
+  maintenance:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.1L3.5 17.2a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 1 5.1-5.4l-2.6 2.6-2-.6-.6-2 2.6-2.6z"/></svg>`,
+  settings:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15 1.65 1.65 0 0 0 3.17 14H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  chevronRight:`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>`,
+  close:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+  grid:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+  list:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`,
+  alertTriangle:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2 20.5h20L12 3.5z"/><path d="M12 10v4.2M12 17.5h.01"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>`,
+  doc:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4.5 20V3.5A1.5 1.5 0 0 1 6 2z"/><path d="M14 2v5h5"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+  checkCircle:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.5 2.5L16 9.5"/></svg>`,
+  arrowRight:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`,
+  link:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.8 4.8 0 0 0 6.8 0l2.5-2.5a4.8 4.8 0 0 0-6.8-6.8L11 6"/><path d="M14 10a4.8 4.8 0 0 0-6.8 0L4.7 12.5a4.8 4.8 0 0 0 6.8 6.8L13 18"/></svg>`,
+  filter:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v6l-4-2v-4L4 5z"/></svg>`,
+  wallet:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2"/><path d="M3 8v10a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1H6a3 3 0 0 1-3-3z"/><circle cx="16.5" cy="14.5" r="1.2" fill="currentColor" stroke="none"/></svg>`,
+  wrench:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.1L3.5 17.2a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 1 5.1-5.4l-2.6 2.6-2-.6-.6-2 2.6-2.6z"/></svg>`,
+  gauge:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14 15.5 9"/><circle cx="12" cy="14" r="1.3" fill="currentColor" stroke="none"/><path d="M4.9 19a9 9 0 1 1 14.2 0"/></svg>`,
+  car:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.8A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.2L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4z"/><circle cx="7.5" cy="16.5" r=".6" fill="currentColor"/><circle cx="16.5" cy="16.5" r=".6" fill="currentColor"/></svg>`,
+  plus:`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  download:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 19h16"/></svg>`,
+  logout:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>`,
+  home:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5v-9"/></svg>`,
+  more:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>`,
+};
+</script>
+<script>
+/* =========================================================================
+   NAVIGATION / APP SHELL
+   ========================================================================= */
+const NAV_ITEMS = [
+  {id:'dashboard', label:'Dashboard', icon:'dashboard'},
+  {id:'fleet', label:'Fleet', icon:'fleet'},
+  {id:'rentals', label:'Rentals', icon:'rentals'},
+  {id:'reservations', label:'Reservations', icon:'reservations'},
+  {id:'customers', label:'Customers', icon:'customers'},
+  {id:'sunpass', label:'SunPass', icon:'sunpass'},
+  {id:'payments', label:'Payments', icon:'payments'},
+  {id:'maintenance', label:'Maintenance', icon:'maintenance'},
+];
+const BOTTOM_NAV_IDS = ['dashboard','fleet','rentals','sunpass'];
+
+function navCounts(){
+  return {
+    dashboard:null,
+    fleet: DATA.vehicles.length,
+    rentals: DATA.rentals.filter(r=>r.status==='Active'||r.status==='Late').length,
+    reservations: DATA.reservations.filter(r=>r.status==='Pending'||r.status==='Confirmed').length,
+    customers: DATA.customers.length,
+    sunpass: DATA.sunpass.filter(t=>t.status==='Pending').length,
+    payments: DATA.payments.filter(p=>p.status==='Pending'||p.status==='Overdue').length,
+    maintenance: DATA.maintenance.filter(m=>m.status==='Overdue'||m.status==='Due Soon').length,
+  };
+}
+
+const state = { page:'dashboard', drawer:null, modal:null, filters:{}, fleetView:'grid', theme:'system' };
+
+function renderNav(){
+  const counts = navCounts();
+  document.getElementById('nav').innerHTML = NAV_ITEMS.map(item => {
+    const active = state.page === item.id;
+    const count = counts[item.id];
+    return `<button class="nav-item ${active?'active':''}" data-page="${item.id}" onclick="navigate('${item.id}')">
+      ${ICONS[item.icon]}<span>${item.label}</span>
+      ${count!=null && count>0 ? `<span class="count">${count}</span>` : ''}
+    </button>`;
+  }).join('');
+  document.getElementById('settingsNavBtn').classList.toggle('active', state.page==='settings');
+
+  document.getElementById('bottomNav').innerHTML = BOTTOM_NAV_IDS.map(id => {
+    const item = NAV_ITEMS.find(n=>n.id===id);
+    const active = state.page === id;
+    return `<button class="${active?'active':''}" onclick="navigate('${id}')">${ICONS[item.icon]}<span>${item.label}</span></button>`;
+  }).join('') + `<button class="${state.page==='more'?'active':''}" onclick="toggleSidebar()">${ICONS.more}<span>More</span></button>`;
+}
+
+function navigate(page){
+  state.page = page;
+  state.filters = {};
+  closeAllOverlays();
+  window.scrollTo(0,0);
+  document.getElementById('page').scrollTop = 0;
+  renderNav();
+  renderPage();
+  window.location.hash = page;
+}
+
+function renderPage(){
+  const el = document.getElementById('page');
+  const renderers = {
+    dashboard: renderDashboard, fleet: renderFleet, rentals: renderRentals,
+    reservations: renderReservations, customers: renderCustomers, sunpass: renderSunpass,
+    payments: renderPayments, maintenance: renderMaintenance, settings: renderSettings,
+  };
+  el.innerHTML = (renderers[state.page] || renderDashboard)();
+}
+
+/* ---- overlays: sidebar / dropdowns / drawer / modal / toast ---- */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('scrim').classList.toggle('show');
+}
+function toggleDropdown(id, ev){
+  ev && ev.stopPropagation();
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('show');
+  document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));
+  if(!wasOpen) el.classList.add('show');
+}
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.dropdown') && !e.target.closest('.nav-user') && !e.target.closest('.topbar-avatar')){
+    document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));
+  }
+});
+function closeAllOverlays(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));
+  closeDrawer();
+  closeModal();
+  document.getElementById('scrim').classList.remove('show');
+}
+function toast(msg, icon){
+  const root = document.getElementById('toast-root');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `${ICONS[icon||'check']}<span>${esc(msg)}</span>`;
+  root.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .25s'; setTimeout(()=>t.remove(), 260); }, 2600);
+}
+function toggleTheme(){
+  const root = document.documentElement;
+  if(state.theme === 'system'){ state.theme='dark'; root.setAttribute('data-theme','dark'); toast('Dark theme enabled'); }
+  else if(state.theme === 'dark'){ state.theme='light'; root.setAttribute('data-theme','light'); toast('Light theme enabled'); }
+  else { state.theme='system'; root.removeAttribute('data-theme'); toast('Following system theme'); }
+}
+
+function openDrawer(html, wide){
+  const layer = document.getElementById('drawer-layer');
+  layer.innerHTML = `<div class="drawer${wide?' wide':''}" id="activeDrawer">${html}</div>`;
+  document.getElementById('scrim').classList.add('show');
+  requestAnimationFrame(()=> document.getElementById('activeDrawer').classList.add('show'));
+}
+function closeDrawer(){
+  const d = document.getElementById('activeDrawer');
+  if(d){ d.classList.remove('show'); }
+  if(!document.querySelector('.modal-wrap')) document.getElementById('scrim').classList.remove('show');
+  setTimeout(()=>{ const layer = document.getElementById('drawer-layer'); if(layer && !layer.querySelector('.drawer.show')) layer.innerHTML=''; }, 220);
+}
+function openModal(html){
+  const layer = document.getElementById('modal-layer');
+  layer.innerHTML = `<div class="modal-wrap" id="activeModal" onclick="if(event.target.id==='activeModal')closeModal()"><div class="modal">${html}</div></div>`;
+  document.getElementById('scrim').classList.add('show');
+  requestAnimationFrame(()=> document.getElementById('activeModal').classList.add('show'));
+}
+function closeModal(){
+  const m = document.getElementById('activeModal');
+  if(m) m.classList.remove('show');
+  if(!document.querySelector('.drawer.show')) document.getElementById('scrim').classList.remove('show');
+  setTimeout(()=>{ const layer = document.getElementById('modal-layer'); if(layer) layer.innerHTML=''; }, 180);
+}
+
+function renderAlertsDropdown(){
+  const alerts = buildAlerts();
+  document.getElementById('alertsCountLbl').textContent = alerts.length ? `${alerts.length} need attention` : 'All clear';
+  document.getElementById('alertsDot').style.display = alerts.length ? 'block' : 'none';
+  document.getElementById('alertsDropdownBody').innerHTML = alerts.length ? alerts.map(a => `
+    <div class="alert-item" style="cursor:pointer; padding:11px 16px;" onclick="${a.onclick}">
+      <div class="alert-dot ${a.tone}">${ICONS[a.icon]}</div>
+      <div class="alert-text"><b>${esc(a.title)}</b><span>${esc(a.sub)}</span></div>
+    </div>`).join('') : `<div class="empty-mini">No alerts right now — smooth sailing.</div>`;
+}
+</script>
+<script>
+/* =========================================================================
+   ALERTS (shared by dashboard panel + header bell dropdown)
+   ========================================================================= */
+function buildAlerts(){
+  const alerts = [];
+  DATA.maintenance.filter(m=>m.status==='Overdue').forEach(m=>{
+    const v = vehicleById(m.vehicle);
+    alerts.push({tone:'danger', icon:'wrench', title:`${vehicleLabel(v)} — maintenance overdue`, sub:`${m.type} was due ${fmtDate(m.dueDate)}`, onclick:`navigate('maintenance')`});
+  });
+  DATA.rentals.filter(r=>r.status==='Late').forEach(r=>{
+    const v = vehicleById(r.vehicle), c = customerById(r.customer);
+    alerts.push({tone:'danger', icon:'clock', title:`${c.name} — return overdue`, sub:`${vehicleLabel(v)} was due back ${fmtDate(r.dropoff)}`, onclick:`navigate('rentals')`});
+  });
+  DATA.payments.filter(p=>p.status==='Overdue').forEach(p=>{
+    const c = customerById(p.customer);
+    alerts.push({tone:'danger', icon:'wallet', title:`${c.name} — payment overdue`, sub:`${fmtMoney(p.amount)} past due since ${fmtDate(p.date)}`, onclick:`navigate('payments')`});
+  });
+  const pendingToll = DATA.sunpass.filter(t=>t.status==='Pending');
+  if(pendingToll.length){
+    const sum = pendingToll.reduce((s,t)=>s+t.amount,0);
+    alerts.push({tone:'toll', icon:'sunpass', title:`SunPass — ${pendingToll.length} unpaid toll${pendingToll.length>1?'s':''}`, sub:`${fmtMoney(sum)} pending collection from customers`, onclick:`navigate('sunpass')`});
+  }
+  DATA.customers.filter(c=>c.docStatus==='Pending').forEach(c=>{
+    alerts.push({tone:'warn', icon:'doc', title:`${c.name} — document pending`, sub:`Driver's license verification incomplete`, onclick:`navigate('customers')`});
+  });
+  DATA.maintenance.filter(m=>m.status==='Due Soon').forEach(m=>{
+    const v = vehicleById(m.vehicle);
+    alerts.push({tone:'warn', icon:'wrench', title:`${vehicleLabel(v)} — service due soon`, sub:`${m.type} scheduled for ${fmtDate(m.dueDate)}`, onclick:`navigate('maintenance')`});
+  });
+  return alerts;
+}
+
+/* =========================================================================
+   DASHBOARD
+   ========================================================================= */
+function renderDashboard(){
+  const vehicles = DATA.vehicles;
+  const total = vehicles.length;
+  const available = vehicles.filter(v=>v.status==='Available').length;
+  const rented = vehicles.filter(v=>v.status==='Rented').length;
+  const reserved = vehicles.filter(v=>v.status==='Reserved').length;
+  const maint = vehicles.filter(v=>v.status==='Maintenance').length;
+
+  const activeRentals = DATA.rentals.filter(r=>r.status==='Active'||r.status==='Late');
+  const monthRevenue = DATA.rentals.filter(r=>['Active','Late','Completed'].includes(r.status) && r.pickup.slice(0,7)==='2026-09' || r.dropoff.slice(0,7)==='2026-09').reduce((s,r)=>s+rentalTotal(r),0);
+  const pendingPayments = DATA.payments.filter(p=>p.status==='Pending'||p.status==='Overdue').reduce((s,p)=>s+p.amount,0);
+  const sunpassPending = DATA.sunpass.filter(t=>t.status==='Pending').reduce((s,t)=>s+t.amount,0);
+
+  const returnsToday = DATA.rentals.filter(r=>r.dropoff===isoToday() && (r.status==='Active'||r.status==='Late'));
+  const pickupsToday = DATA.reservations.filter(r=>r.pickup===isoToday() && r.status==='Confirmed');
+  const startingToday = DATA.reservations.filter(r=>r.pickup===isoToday() && (r.status==='Confirmed'||r.status==='Pending'));
+
+  const alerts = buildAlerts();
+
+  function activityRow(kind, r){
+    const v = vehicleById(r.vehicle), c = customerById(r.customer);
+    const map = {
+      return:{cls:'return', icon:'car', verb:'Return', time:r.dropoffTime||'—', date:r.dropoff},
+      pickup:{cls:'pickup', icon:'car', verb:'Pickup', time:r.pickupTime||'—', date:r.pickup},
+      resv:{cls:'resv', icon:'reservations', verb:r.status==='Pending'?'Requested':'Confirmed', time:r.pickupTime||'—', date:r.pickup},
+    }[kind];
+    return `<div class="activity-item" onclick="${kind==='return'?`openRentalDrawer('${r.id}')`:`openReservationDrawer('${r.id}')`}" style="cursor:pointer;">
+      <div class="activity-thumb ${map.cls}">${ICONS[map.icon]}</div>
+      <div class="activity-text"><b>${esc(c.name)}</b><span>${esc(vehicleLabel(v))}</span></div>
+      <div class="activity-time">${map.verb}: ${fmtDateShort(map.date)}<small>${esc(map.time)}</small></div>
+    </div>`;
+  }
+
+  return `
+    <div class="page-head">
+      <div><h1>Dashboard</h1><p class="sub">Here's what's happening across the fleet today, ${fmtDate(isoToday())}.</p></div>
+      <div class="page-actions">
+        <button class="btn" onclick="navigate('fleet')">${ICONS.fleet} View fleet</button>
+        <button class="btn btn-primary" onclick="navigate('reservations')">${ICONS.plus} New reservation</button>
+      </div>
+    </div>
+
+    <div class="grid-metrics">
+      <div class="metric-card accent-accent">
+        <div class="metric-top"><span class="metric-label">Total Vehicles</span><div class="metric-icon">${ICONS.fleet}</div></div>
+        <div class="metric-value num">${total}</div>
+        <div class="metric-foot">Across ${new Set(vehicles.map(v=>v.category)).size} categories</div>
+      </div>
+      <div class="metric-card accent-ok">
+        <div class="metric-top"><span class="metric-label">Available</span><div class="metric-icon">${ICONS.checkCircle}</div></div>
+        <div class="metric-value num">${available}</div>
+        <div class="metric-foot">Ready for pickup today</div>
+      </div>
+      <div class="metric-card accent-info">
+        <div class="metric-top"><span class="metric-label">Rented</span><div class="metric-icon">${ICONS.car}</div></div>
+        <div class="metric-value num">${rented}</div>
+        <div class="metric-foot">${activeRentals.filter(r=>r.status==='Late').length} returning late</div>
+      </div>
+      <div class="metric-card accent-warn">
+        <div class="metric-top"><span class="metric-label">Reserved</span><div class="metric-icon">${ICONS.reservations}</div></div>
+        <div class="metric-value num">${reserved}</div>
+        <div class="metric-foot">Upcoming pickups this week</div>
+      </div>
+      <div class="metric-card accent-danger">
+        <div class="metric-top"><span class="metric-label">In Maintenance</span><div class="metric-icon">${ICONS.wrench}</div></div>
+        <div class="metric-value num">${maint}</div>
+        <div class="metric-foot">${DATA.maintenance.filter(m=>m.status==='Overdue').length} overdue service</div>
+      </div>
+    </div>
+
+    <div class="grid-metrics gm-4">
+      <div class="metric-card accent-accent">
+        <div class="metric-top"><span class="metric-label">Est. Revenue (Sep)</span><div class="metric-icon">${ICONS.wallet}</div></div>
+        <div class="metric-value num">${fmtMoneyShort(monthRevenue)}</div>
+        <div class="metric-foot">From ${activeRentals.length} active + completed rentals</div>
+      </div>
+      <div class="metric-card accent-warn">
+        <div class="metric-top"><span class="metric-label">Pending Payments</span><div class="metric-icon">${ICONS.payments}</div></div>
+        <div class="metric-value num">${fmtMoneyShort(pendingPayments)}</div>
+        <div class="metric-foot"><button class="link" style="border:none;background:none;color:var(--accent);font-weight:600;cursor:pointer;padding:0;" onclick="navigate('payments')">Review payments →</button></div>
+      </div>
+      <div class="metric-card accent-toll">
+        <div class="metric-top"><span class="metric-label">SunPass Pending</span><div class="metric-icon">${ICONS.sunpass}</div></div>
+        <div class="metric-value num">${fmtMoneyShort(sunpassPending)}</div>
+        <div class="metric-foot"><button style="border:none;background:none;color:var(--toll);font-weight:600;cursor:pointer;padding:0;" onclick="navigate('sunpass')">Open SunPass →</button></div>
+      </div>
+      <div class="metric-card accent-info">
+        <div class="metric-top"><span class="metric-label">Active Rentals</span><div class="metric-icon">${ICONS.rentals}</div></div>
+        <div class="metric-value num">${activeRentals.length}</div>
+        <div class="metric-foot">${returnsToday.length} returning today</div>
+      </div>
+    </div>
+
+    <div class="row-2col">
+      <div class="panel">
+        <div class="panel-head"><h3>Today's Activity</h3><span style="font-size:12px;color:var(--ink-500);font-family:var(--font-mono);">${fmtDate(isoToday())}</span></div>
+        <div class="panel-body">
+          <div class="nav-section-label" style="color:var(--ink-500);padding-top:8px;">Pickups today</div>
+          ${pickupsToday.length ? pickupsToday.map(r=>activityRow('pickup',r)).join('') : `<div class="empty-mini">No confirmed pickups scheduled today.</div>`}
+          <div class="nav-section-label" style="color:var(--ink-500);">Returns today</div>
+          ${returnsToday.length ? returnsToday.map(r=>activityRow('return',r)).join('') : `<div class="empty-mini">No returns due today.</div>`}
+          <div class="nav-section-label" style="color:var(--ink-500);">Reservations starting today</div>
+          ${startingToday.length ? startingToday.map(r=>activityRow('resv',r)).join('') : `<div class="empty-mini">No reservations starting today.</div>`}
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Alerts</h3><button class="link" onclick="navigate('maintenance')">Manage <span style="display:inline-flex;">${ICONS.chevronRight}</span></button></div>
+        <div class="panel-body">
+          ${alerts.length ? alerts.slice(0,6).map(a=>`
+            <div class="alert-item" style="cursor:pointer;" onclick="${a.onclick}">
+              <div class="alert-dot ${a.tone}">${ICONS[a.icon]}</div>
+              <div class="alert-text"><b>${esc(a.title)}</b><span>${esc(a.sub)}</span></div>
+            </div>`).join('') : `<div class="empty-mini">Nothing needs attention — great work.</div>`}
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:14px;">
+      <div class="panel-head">
+        <div><h3>Available Vehicles</h3><span style="font-size:12px;color:var(--ink-500);">${available} ready for pickup right now</span></div>
+        <button class="link" onclick="goToAvailableFleet()">View all in Fleet <span style="display:inline-flex;">${ICONS.chevronRight}</span></button>
+      </div>
+      ${available ? `<div class="avail-strip">${vehicles.filter(v=>v.status==='Available').map(v=>`
+        <div class="avail-chip" onclick="openVehicleDrawer('${v.id}')">
+          <div class="veh-photo tone-${vehiclePhotoTone(v.category)}">${vehicleIcon(v.category)}</div>
+          <div class="avail-chip-body">
+            <b>${esc(v.make)} ${esc(v.model)} ${v.year}</b>
+            <span class="sub">${esc(v.category)}</span>
+            <div class="avail-chip-foot"><span class="plate">${esc(v.plate)}</span><span class="num">${fmtMoney(v.dailyRate)}/day</span></div>
+          </div>
+        </div>`).join('')}</div>` : `<div class="empty-mini">No vehicles available right now — everything is out or in service.</div>`}
+    </div>
+  `;
+}
+function goToAvailableFleet(){
+  navigate('fleet');
+  const sel = document.getElementById('fleetStatus');
+  if(sel){ sel.value = 'Available'; applyFleetFilters(); }
+}
+function isoToday(){ return '2026-09-08'; }
+</script>
+<script>
+/* =========================================================================
+   FLEET
+   ========================================================================= */
+function fleetFilteredList(){
+  const q = (document.getElementById('fleetSearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('fleetStatus')?.value || 'all';
+  const cat = document.getElementById('fleetCategory')?.value || 'all';
+  return DATA.vehicles.filter(v=>{
+    if(status!=='all' && v.status!==status) return false;
+    if(cat!=='all' && v.category!==cat) return false;
+    if(q && !(`${v.make} ${v.model} ${v.year} ${v.plate}`.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+function applyFleetFilters(){
+  const list = fleetFilteredList();
+  document.getElementById('fleetCount').textContent = `${list.length} vehicle${list.length!==1?'s':''}`;
+  document.getElementById('fleetResults').innerHTML = state.fleetView==='grid' ? fleetGrid(list) : fleetTable(list);
+}
+function setFleetView(mode){
+  state.fleetView = mode;
+  document.getElementById('fleetViewGrid').classList.toggle('active', mode==='grid');
+  document.getElementById('fleetViewTable').classList.toggle('active', mode==='table');
+  applyFleetFilters();
+}
+function fleetGrid(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No vehicles match these filters.</div>`;
+  return `<div class="fleet-grid">${list.map(v=>`
+    <div class="veh-card" onclick="openVehicleDrawer('${v.id}')">
+      <div class="veh-photo tone-${vehiclePhotoTone(v.category)}">${vehicleIcon(v.category)}<span style="position:absolute;top:10px;right:10px;">${badge(v.status)}</span></div>
+      <div class="veh-body">
+        <div class="veh-title">${esc(v.make)} ${esc(v.model)} ${v.year}</div>
+        <div class="veh-sub">${esc(v.category)} · ${v.mileage.toLocaleString('en-US')} mi</div>
+        <div class="veh-meta"><span class="plate">${esc(v.plate)}</span><span>${fmtMoney(v.dailyRate)}/day</span></div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+function fleetTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No vehicles match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Vehicle</th><th>Plate</th><th>Category</th><th class="num">Mileage</th><th>Last Service</th><th>Next Service</th><th>Status</th></tr></thead>
+    <tbody>${list.map(v=>`
+      <tr onclick="openVehicleDrawer('${v.id}')">
+        <td class="cell-main-td"><div class="cell-main"><div class="veh-thumb">${vehicleIcon(v.category)}</div><div><b>${esc(v.make)} ${esc(v.model)}</b><span>${v.year} · ${esc(v.color)}</span></div></div></td>
+        <td data-label="Plate"><span class="plate">${esc(v.plate)}</span></td>
+        <td data-label="Category">${esc(v.category)}</td>
+        <td class="num" data-label="Mileage">${v.mileage.toLocaleString('en-US')} mi</td>
+        <td data-label="Last Service">${fmtDate(v.lastService)}</td>
+        <td data-label="Next Service">${fmtDate(v.nextService)}</td>
+        <td data-label="Status">${badge(v.status)}</td>
+      </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function renderFleet(){
+  const categories = [...new Set(DATA.vehicles.map(v=>v.category))].sort();
+  return `
+    <div class="page-head">
+      <div><h1>Fleet</h1><p class="sub">${DATA.vehicles.length} vehicles on record across ${categories.length} categories.</p></div>
+      <div class="page-actions"><button class="btn btn-primary" onclick="toast('Adding new vehicles is disabled in this prototype.')">${ICONS.plus} Add vehicle</button></div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fleetSearch" placeholder="Search make, model, plate…" oninput="applyFleetFilters()"></div>
+        <select id="fleetStatus" onchange="applyFleetFilters()">
+          <option value="all">All statuses</option>
+          <option>Available</option><option>Rented</option><option>Reserved</option><option>Maintenance</option>
+        </select>
+        <select id="fleetCategory" onchange="applyFleetFilters()">
+          <option value="all">All categories</option>
+          ${categories.map(c=>`<option>${esc(c)}</option>`).join('')}
+        </select>
+        <span class="filter-count" id="fleetCount">${DATA.vehicles.length} vehicles</span>
+        <div class="view-toggle">
+          <button id="fleetViewGrid" class="active" onclick="setFleetView('grid')">${ICONS.grid}</button>
+          <button id="fleetViewTable" onclick="setFleetView('table')">${ICONS.list}</button>
+        </div>
+      </div>
+      <div id="fleetResults">${fleetGrid(DATA.vehicles)}</div>
+    </div>
+  `;
+}
+</script>
+<script>
+/* =========================================================================
+   RENTALS
+   ========================================================================= */
+function rentalsFilteredList(){
+  const q = (document.getElementById('rentalSearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('rentalStatus')?.value || 'all';
+  const when = document.getElementById('rentalWhen')?.value || 'all';
+  return DATA.rentals.filter(r=>{
+    const v = vehicleById(r.vehicle), c = customerById(r.customer);
+    if(status!=='all' && r.status!==status) return false;
+    if(q && !(`${c.name} ${v.make} ${v.model} ${v.plate}`.toLowerCase().includes(q))) return false;
+    if(when==='today' && r.pickup!==isoToday() && r.dropoff!==isoToday()) return false;
+    if(when==='week' && (daysFromToday(r.dropoff) < -60 && daysFromToday(r.pickup) < -60)) return false;
+    return true;
+  }).sort((a,b)=>{
+    const order = {Late:0, Active:1, Upcoming:2, Completed:3, Cancelled:4};
+    const diff = (order[a.status]??9) - (order[b.status]??9);
+    if(diff!==0) return diff;
+    return parseISO(a.dropoff)-parseISO(b.dropoff);
+  });
+}
+function applyRentalFilters(){
+  const list = rentalsFilteredList();
+  document.getElementById('rentalCount').textContent = `${list.length} rental${list.length!==1?'s':''}`;
+  document.getElementById('rentalResults').innerHTML = rentalsTable(list);
+}
+function rentalsTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No rentals match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Customer</th><th>Vehicle</th><th>Pickup</th><th>Return</th><th class="num">Total</th><th class="num">Deposit</th><th>Status</th><th>Payment</th></tr></thead>
+    <tbody>${list.map(r=>{
+      const v = vehicleById(r.vehicle), c = customerById(r.customer);
+      return `<tr onclick="openRentalDrawer('${r.id}')">
+        <td class="cell-main-td"><div class="cell-main"><div class="cell-avatar">${initials(c.name)}</div><div><b>${esc(c.name)}</b><span>${esc(c.phone)}</span></div></div></td>
+        <td data-label="Vehicle">${esc(vehicleLabel(v))}<br><span class="plate" style="margin-top:3px;">${esc(v.plate)}</span></td>
+        <td data-label="Pickup">${fmtDate(r.pickup)}</td>
+        <td data-label="Return">${fmtDate(r.dropoff)}</td>
+        <td class="num" data-label="Total">${fmtMoney(rentalTotal(r))}</td>
+        <td class="num" data-label="Deposit">${fmtMoney(r.deposit)}</td>
+        <td data-label="Status">${badge(r.status)}</td>
+        <td data-label="Payment">${badge(r.payment)}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+function renderRentals(){
+  const active = DATA.rentals.filter(r=>r.status==='Active').length;
+  const late = DATA.rentals.filter(r=>r.status==='Late').length;
+  return `
+    <div class="page-head">
+      <div><h1>Rentals</h1><p class="sub">${active} active, ${late} overdue for return, across ${DATA.rentals.length} total rentals.</p></div>
+      <div class="page-actions"><button class="btn btn-primary" onclick="navigate('reservations')">${ICONS.plus} New rental</button></div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="rentalSearch" placeholder="Search customer or vehicle…" oninput="applyRentalFilters()"></div>
+        <select id="rentalStatus" onchange="applyRentalFilters()">
+          <option value="all">All statuses</option>
+          <option>Upcoming</option><option>Active</option><option>Late</option><option>Completed</option><option>Cancelled</option>
+        </select>
+        <select id="rentalWhen" onchange="applyRentalFilters()">
+          <option value="all">Any date</option>
+          <option value="today">Today</option>
+        </select>
+        <span class="filter-count" id="rentalCount">${DATA.rentals.length} rentals</span>
+      </div>
+      <div id="rentalResults">${rentalsTable(rentalsFilteredList())}</div>
+    </div>
+  `;
+}
+</script>
+<script>
+/* =========================================================================
+   RESERVATIONS
+   ========================================================================= */
+function reservationsFilteredList(){
+  const q = (document.getElementById('resvSearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('resvStatus')?.value || 'all';
+  return DATA.reservations.filter(r=>{
+    const v = vehicleById(r.vehicle), c = customerById(r.customer);
+    if(status!=='all' && r.status!==status) return false;
+    if(q && !(`${c.name} ${v.make} ${v.model}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a,b)=> parseISO(a.pickup)-parseISO(b.pickup));
+}
+function applyResvFilters(){
+  const list = reservationsFilteredList();
+  document.getElementById('resvCount').textContent = `${list.length} reservation${list.length!==1?'s':''}`;
+  document.getElementById('resvResults').innerHTML = reservationsTable(list);
+}
+function reservationsTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No reservations match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Customer</th><th>Vehicle</th><th>Pickup</th><th>Return</th><th class="num">Days</th><th class="num">Est. Total</th><th>Status</th><th></th></tr></thead>
+    <tbody>${list.map(r=>{
+      const v = vehicleById(r.vehicle), c = customerById(r.customer);
+      const days = Math.max(1, daysBetween(r.pickup, r.dropoff));
+      const canConvert = r.status==='Confirmed';
+      return `<tr onclick="openReservationDrawer('${r.id}')">
+        <td class="cell-main-td"><div class="cell-main"><div class="cell-avatar">${initials(c.name)}</div><div><b>${esc(c.name)}</b><span>${esc(c.phone)}</span></div></div></td>
+        <td data-label="Vehicle">${esc(vehicleLabel(v))}<br><span class="plate" style="margin-top:3px;">${esc(v.plate)}</span></td>
+        <td data-label="Pickup">${fmtDate(r.pickup)} <span style="color:var(--ink-500);">· ${esc(r.pickupTime)}</span></td>
+        <td data-label="Return">${fmtDate(r.dropoff)}</td>
+        <td class="num" data-label="Days">${days}</td>
+        <td class="num" data-label="Est. Total">${fmtMoney(days*v.dailyRate)}</td>
+        <td data-label="Status">${r.status==='Converted' ? badge('Converted','Converted to Rental') : badge(r.status)}</td>
+        <td data-label="" onclick="event.stopPropagation()" style="text-align:right;">${canConvert ? `<button class="btn btn-sm btn-primary" onclick="openConvertModal('${r.id}')">Convert to Rental</button>` : ''}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+function renderReservations(){
+  const pending = DATA.reservations.filter(r=>r.status==='Pending').length;
+  const confirmed = DATA.reservations.filter(r=>r.status==='Confirmed').length;
+  return `
+    <div class="page-head">
+      <div><h1>Reservations</h1><p class="sub">${confirmed} confirmed, ${pending} pending confirmation.</p></div>
+      <div class="page-actions"><button class="btn btn-primary" onclick="toast('New reservations are entered from the booking screen in the full product.')">${ICONS.plus} New reservation</button></div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="resvSearch" placeholder="Search customer or vehicle…" oninput="applyResvFilters()"></div>
+        <select id="resvStatus" onchange="applyResvFilters()">
+          <option value="all">All statuses</option>
+          <option>Pending</option><option>Confirmed</option><option>Cancelled</option><option value="Converted">Converted to Rental</option>
+        </select>
+        <span class="filter-count" id="resvCount">${DATA.reservations.length} reservations</span>
+      </div>
+      <div id="resvResults">${reservationsTable(reservationsFilteredList())}</div>
+    </div>
+  `;
+}
+function openConvertModal(id){
+  const r = api.getReservation(id), v = vehicleById(r.vehicle), c = customerById(r.customer);
+  const days = Math.max(1, daysBetween(r.pickup, r.dropoff));
+  openModal(`
+    <div class="modal-head"><h3>Convert to Rental</h3><p>This will move the reservation into active rentals and mark ${esc(v.plate)} as rented. No backend is connected in this prototype — the change is visual only.</p></div>
+    <div class="modal-body">
+      <div class="kv-grid" style="margin-bottom:14px;">
+        <div class="kv"><label>Customer</label><b>${esc(c.name)}</b></div>
+        <div class="kv"><label>Vehicle</label><b>${esc(vehicleLabel(v))}</b></div>
+        <div class="kv"><label>Pickup</label><b>${fmtDate(r.pickup)}, ${esc(r.pickupTime)}</b></div>
+        <div class="kv"><label>Return</label><b>${fmtDate(r.dropoff)}</b></div>
+      </div>
+      <div class="line-item total"><span>Estimated total (${days} day${days>1?'s':''})</span><b>${fmtMoney(days*v.dailyRate)}</b></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmConvert('${r.id}')">${ICONS.check} Confirm conversion</button>
+    </div>
+  `);
+}
+function confirmConvert(id){
+  const r = api.getReservation(id), v = vehicleById(r.vehicle);
+  r.status = 'Converted';
+  v.status = 'Rented'; v.currentCustomer = r.customer;
+  const newRental = {id:'R'+String(DATA.rentals.length+1).padStart(2,'0'), vehicle:r.vehicle, customer:r.customer, pickup:r.pickup, dropoffTime:null, dropoff:r.dropoff, dailyRate:v.dailyRate, extras:0, sunpass:0, deposit:200, status:'Active', payment:'Pending'};
+  DATA.rentals.push(newRental);
+  v.currentRental = newRental.id;
+  r.rental = newRental.id;
+  closeModal();
+  toast('Reservation converted to an active rental.');
+  renderNav();
+  renderPage();
+}
+</script>
+<script>
+/* =========================================================================
+   CUSTOMERS
+   ========================================================================= */
+function customersFilteredList(){
+  const q = (document.getElementById('custSearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('custStatus')?.value || 'all';
+  return DATA.customers.filter(c=>{
+    if(status!=='all' && c.status!==status) return false;
+    if(q && !(`${c.name} ${c.email} ${c.phone}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a,b)=> customerTotalSpent(b.id)-customerTotalSpent(a.id));
+}
+function applyCustFilters(){
+  const list = customersFilteredList();
+  document.getElementById('custCount').textContent = `${list.length} customer${list.length!==1?'s':''}`;
+  document.getElementById('custResults').innerHTML = customersTable(list);
+}
+function customersTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No customers match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Customer</th><th>Phone</th><th>Email</th><th class="num">Rentals</th><th class="num">Total Spent</th><th>Status</th></tr></thead>
+    <tbody>${list.map(c=>`
+      <tr onclick="openCustomerDrawer('${c.id}')">
+        <td class="cell-main-td"><div class="cell-main"><div class="cell-avatar">${initials(c.name)}</div><div><b>${esc(c.name)}</b><span>${esc(c.license)} license</span></div></div></td>
+        <td data-label="Phone">${esc(c.phone)}</td>
+        <td data-label="Email">${esc(c.email)}</td>
+        <td class="num" data-label="Rentals">${customerRentalCount(c.id)}</td>
+        <td class="num" data-label="Total Spent">${fmtMoney(customerTotalSpent(c.id))}</td>
+        <td data-label="Status">${badge(c.status)}${c.docStatus==='Pending'?` ${badge('Pending','Docs pending')}`:''}</td>
+      </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function renderCustomers(){
+  return `
+    <div class="page-head">
+      <div><h1>Customers</h1><p class="sub">${DATA.customers.length} customers on file · ${DATA.customers.filter(c=>c.docStatus==='Pending').length} with documents pending.</p></div>
+      <div class="page-actions"><button class="btn btn-primary" onclick="toast('Adding new customers is disabled in this prototype.')">${ICONS.plus} Add customer</button></div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="custSearch" placeholder="Search name, phone, email…" oninput="applyCustFilters()"></div>
+        <select id="custStatus" onchange="applyCustFilters()">
+          <option value="all">All statuses</option><option>Active</option><option>Inactive</option>
+        </select>
+        <span class="filter-count" id="custCount">${DATA.customers.length} customers</span>
+      </div>
+      <div id="custResults">${customersTable(customersFilteredList())}</div>
+    </div>
+  `;
+}
+</script>
+<script>
+/* =========================================================================
+   SUNPASS
+   ========================================================================= */
+function sunpassFilteredList(){
+  const q = (document.getElementById('tollSearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('tollStatus')?.value || 'all';
+  return DATA.sunpass.filter(t=>{
+    const v = vehicleById(t.vehicle), c = customerById(t.customer);
+    if(status!=='all' && t.status!==status) return false;
+    if(q && !(`${c.name} ${v.make} ${v.model} ${v.plate} ${t.location}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a,b)=> parseISO(b.date)-parseISO(a.date));
+}
+function applyTollFilters(){
+  const list = sunpassFilteredList();
+  document.getElementById('tollCount').textContent = `${list.length} transaction${list.length!==1?'s':''}`;
+  document.getElementById('tollResults').innerHTML = sunpassTable(list);
+}
+function sunpassTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No SunPass transactions match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Vehicle</th><th>Plate</th><th>Customer</th><th>Rental</th><th>Toll Location</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead>
+    <tbody>${list.map(t=>{
+      const v = vehicleById(t.vehicle), c = customerById(t.customer);
+      return `<tr onclick="openCustomerDrawer('${c.id}')">
+        <td data-label="Date">${fmtDate(t.date)}</td>
+        <td data-label="Vehicle">${esc(vehicleLabel(v))}</td>
+        <td data-label="Plate"><span class="plate">${esc(v.plate)}</span></td>
+        <td data-label="Customer">${esc(c.name)}</td>
+        <td data-label="Rental">${t.rental ? `<span class="mono" style="font-size:12px;">${t.rental}</span>` : `<span style="color:var(--ink-400);">Unassigned</span>`}</td>
+        <td data-label="Toll Location">${esc(t.location)}</td>
+        <td class="num" data-label="Amount">${fmtMoney(t.amount)}</td>
+        <td data-label="Status">${badge(t.status)}</td>
+        <td onclick="event.stopPropagation()" style="text-align:right;">${!t.rental ? `<button class="btn btn-sm" onclick="openAssignModal('${t.id}')">${ICONS.link} Assign to Rental</button>` : ''}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+function renderSunpass(){
+  const thisMonth = DATA.sunpass.filter(t=>t.date.slice(0,7)==='2026-09');
+  const monthSum = thisMonth.reduce((s,t)=>s+t.amount,0);
+  const pending = DATA.sunpass.filter(t=>t.status==='Pending');
+  const pendingSum = pending.reduce((s,t)=>s+t.amount,0);
+  const paid = DATA.sunpass.filter(t=>t.status==='Paid');
+  const paidSum = paid.reduce((s,t)=>s+t.amount,0);
+  return `
+    <div class="page-head">
+      <div><h1>SunPass</h1><p class="sub">Every toll charge tied back to the rental and customer who incurred it.</p></div>
+      <div class="page-actions"><button class="btn" onclick="toast('Statement export is a backend integration in the full product.')">${ICONS.download} Export statement</button></div>
+    </div>
+    <div class="grid-metrics gm-4">
+      <div class="metric-card accent-toll">
+        <div class="metric-top"><span class="metric-label">SunPass This Month</span><div class="metric-icon">${ICONS.sunpass}</div></div>
+        <div class="metric-value num">${fmtMoney(monthSum)}</div>
+        <div class="metric-foot">${thisMonth.length} toll crossings in September</div>
+      </div>
+      <div class="metric-card accent-warn">
+        <div class="metric-top"><span class="metric-label">Pending Collection</span><div class="metric-icon">${ICONS.clock}</div></div>
+        <div class="metric-value num">${fmtMoney(pendingSum)}</div>
+        <div class="metric-foot">${pending.length} charges awaiting billing</div>
+      </div>
+      <div class="metric-card accent-ok">
+        <div class="metric-top"><span class="metric-label">Paid</span><div class="metric-icon">${ICONS.checkCircle}</div></div>
+        <div class="metric-value num">${fmtMoney(paidSum)}</div>
+        <div class="metric-foot">${paid.length} settled transactions</div>
+      </div>
+      <div class="metric-card accent-info">
+        <div class="metric-top"><span class="metric-label">Transactions</span><div class="metric-icon">${ICONS.gauge}</div></div>
+        <div class="metric-value num">${DATA.sunpass.length}</div>
+        <div class="metric-foot">${DATA.sunpass.filter(t=>!t.rental).length} unassigned to a rental</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="tollSearch" placeholder="Search customer, plate, toll…" oninput="applyTollFilters()"></div>
+        <select id="tollStatus" onchange="applyTollFilters()">
+          <option value="all">All statuses</option><option>Pending</option><option>Charged</option><option>Paid</option><option>Disputed</option>
+        </select>
+        <span class="filter-count" id="tollCount">${DATA.sunpass.length} transactions</span>
+      </div>
+      <div id="tollResults">${sunpassTable(sunpassFilteredList())}</div>
+    </div>
+  `;
+}
+function openAssignModal(txId){
+  const t = DATA.sunpass.find(x=>x.id===txId);
+  const v = vehicleById(t.vehicle), c = customerById(t.customer);
+  const candidateRentals = DATA.rentals.filter(r=>r.vehicle===t.vehicle);
+  openModal(`
+    <div class="modal-head"><h3>Assign to Rental</h3><p>Link this ${esc(v.plate)} toll charge from ${esc(t.location)} to the rental that was active on ${fmtDate(t.date)}.</p></div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Rental</label>
+        <select id="assignRentalSelect">
+          ${candidateRentals.length ? candidateRentals.map(r=>`<option value="${r.id}">${r.id} — ${esc(customerById(r.customer).name)} (${fmtDate(r.pickup)} – ${fmtDate(r.dropoff)})</option>`).join('') : `<option value="">No rentals found for this vehicle</option>`}
+        </select>
+      </div>
+      <div class="kv-grid">
+        <div class="kv"><label>Amount</label><b class="num">${fmtMoney(t.amount)}</b></div>
+        <div class="kv"><label>Current customer on file</label><b>${esc(c.name)}</b></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssign('${txId}')">${ICONS.check} Assign charge</button>
+    </div>
+  `);
+}
+function confirmAssign(txId){
+  const sel = document.getElementById('assignRentalSelect');
+  const rentalId = sel ? sel.value : '';
+  if(!rentalId){ toast('No rental selected.'); return; }
+  const t = DATA.sunpass.find(x=>x.id===txId);
+  t.rental = rentalId;
+  t.status = 'Charged';
+  closeModal();
+  toast('SunPass charge assigned to rental '+rentalId+'.');
+  applyTollFilters();
+  renderNav();
+}
+</script>
+<script>
+/* =========================================================================
+   PAYMENTS
+   ========================================================================= */
+function paymentsFilteredList(){
+  const q = (document.getElementById('paySearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('payStatus')?.value || 'all';
+  return DATA.payments.filter(p=>{
+    const c = customerById(p.customer);
+    if(status!=='all' && p.status!==status) return false;
+    if(q && !(`${c.name} ${p.description} ${p.rental}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a,b)=> parseISO(b.date)-parseISO(a.date));
+}
+function applyPayFilters(){
+  const list = paymentsFilteredList();
+  document.getElementById('payCount').textContent = `${list.length} transaction${list.length!==1?'s':''}`;
+  document.getElementById('payResults').innerHTML = paymentsTable(list);
+}
+function paymentsTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No transactions match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Customer</th><th>Rental</th><th>Description</th><th class="num">Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>${list.map(p=>{
+      const c = customerById(p.customer);
+      return `<tr onclick="openCustomerDrawer('${c.id}')">
+        <td class="cell-main-td"><div class="cell-main"><div class="cell-avatar">${initials(c.name)}</div><div><b>${esc(c.name)}</b></div></div></td>
+        <td data-label="Rental"><span class="mono" style="font-size:12px;">${esc(p.rental)}</span></td>
+        <td data-label="Description">${esc(p.description)}</td>
+        <td class="num" data-label="Amount">${fmtMoney(p.amount)}</td>
+        <td data-label="Method">${esc(p.method)}</td>
+        <td data-label="Date">${fmtDate(p.date)}</td>
+        <td data-label="Status">${badge(p.status)}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+function renderPayments(){
+  const thisMonth = DATA.payments.filter(p=>p.date.slice(0,7)==='2026-09' && p.status==='Paid');
+  const revenue = thisMonth.reduce((s,p)=>s+p.amount,0);
+  const pending = DATA.payments.filter(p=>p.status==='Pending'||p.status==='Overdue');
+  const pendingSum = pending.reduce((s,p)=>s+p.amount,0);
+  const deposits = DATA.rentals.filter(r=>r.status==='Active'||r.status==='Late').reduce((s,r)=>s+r.deposit,0);
+  const sunpassReceivable = DATA.sunpass.filter(t=>t.status==='Pending'||t.status==='Charged').reduce((s,t)=>s+t.amount,0);
+  return `
+    <div class="page-head">
+      <div><h1>Payments</h1><p class="sub">Finance overview across rentals, deposits, and toll receivables.</p></div>
+      <div class="page-actions"><button class="btn" onclick="toast('CSV export connects to accounting in the full product.')">${ICONS.download} Export</button></div>
+    </div>
+    <div class="grid-metrics gm-4">
+      <div class="metric-card accent-ok">
+        <div class="metric-top"><span class="metric-label">Revenue This Month</span><div class="metric-icon">${ICONS.wallet}</div></div>
+        <div class="metric-value num">${fmtMoney(revenue)}</div>
+        <div class="metric-foot">${thisMonth.length} settled transactions</div>
+      </div>
+      <div class="metric-card accent-warn">
+        <div class="metric-top"><span class="metric-label">Pending Payments</span><div class="metric-icon">${ICONS.clock}</div></div>
+        <div class="metric-value num">${fmtMoney(pendingSum)}</div>
+        <div class="metric-foot">${pending.length} awaiting or overdue</div>
+      </div>
+      <div class="metric-card accent-info">
+        <div class="metric-top"><span class="metric-label">Security Deposits Held</span><div class="metric-icon">${ICONS.doc}</div></div>
+        <div class="metric-value num">${fmtMoney(deposits)}</div>
+        <div class="metric-foot">Across active rentals</div>
+      </div>
+      <div class="metric-card accent-toll">
+        <div class="metric-top"><span class="metric-label">SunPass Receivable</span><div class="metric-icon">${ICONS.sunpass}</div></div>
+        <div class="metric-value num">${fmtMoney(sunpassReceivable)}</div>
+        <div class="metric-foot"><button style="border:none;background:none;color:var(--toll);font-weight:600;cursor:pointer;padding:0;" onclick="navigate('sunpass')">View SunPass →</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="paySearch" placeholder="Search customer, rental, description…" oninput="applyPayFilters()"></div>
+        <select id="payStatus" onchange="applyPayFilters()">
+          <option value="all">All statuses</option><option>Paid</option><option>Pending</option><option>Overdue</option><option>Refunded</option>
+        </select>
+        <span class="filter-count" id="payCount">${DATA.payments.length} transactions</span>
+      </div>
+      <div id="payResults">${paymentsTable(paymentsFilteredList())}</div>
+    </div>
+  `;
+}
+</script>
+<script>
+/* =========================================================================
+   MAINTENANCE
+   ========================================================================= */
+function maintFilteredList(){
+  const q = (document.getElementById('maintSearch')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('maintStatus')?.value || 'all';
+  return DATA.maintenance.filter(m=>{
+    const v = vehicleById(m.vehicle);
+    if(status!=='all' && m.status!==status) return false;
+    if(q && !(`${v.make} ${v.model} ${v.plate} ${m.type}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a,b)=> parseISO(a.dueDate)-parseISO(b.dueDate));
+}
+function applyMaintFilters(){
+  const list = maintFilteredList();
+  document.getElementById('maintCount').textContent = `${list.length} record${list.length!==1?'s':''}`;
+  document.getElementById('maintResults').innerHTML = maintTable(list);
+}
+function maintTable(list){
+  if(!list.length) return `<div class="empty-mini" style="padding:60px 10px;">No maintenance records match these filters.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Vehicle</th><th>Type</th><th class="num">Mileage</th><th>Due Date</th><th>Status</th></tr></thead>
+    <tbody>${list.map(m=>{
+      const v = vehicleById(m.vehicle);
+      return `<tr onclick="openVehicleDrawer('${v.id}')">
+        <td class="cell-main-td"><div class="cell-main"><div class="veh-thumb">${vehicleIcon(v.category)}</div><div><b>${esc(vehicleLabel(v))}</b><span class="plate" style="margin-top:2px;display:inline-block;">${esc(v.plate)}</span></div></div></td>
+        <td data-label="Type">${esc(m.type)}</td>
+        <td class="num" data-label="Mileage">${m.mileage.toLocaleString('en-US')} mi</td>
+        <td data-label="Due Date">${fmtDate(m.dueDate)}</td>
+        <td data-label="Status">${badge(m.status)}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+function renderMaintenance(){
+  const dueWeek = DATA.maintenance.filter(m=>m.status==='Due Soon' || (m.status!=='Completed' && daysFromToday(m.dueDate)>=0 && daysFromToday(m.dueDate)<=7));
+  const overdue = DATA.maintenance.filter(m=>m.status==='Overdue');
+  const unavailable = DATA.vehicles.filter(v=>v.status==='Maintenance');
+  return `
+    <div class="page-head">
+      <div><h1>Maintenance</h1><p class="sub">Service schedule and vehicle availability impact.</p></div>
+      <div class="page-actions"><button class="btn btn-primary" onclick="toast('Scheduling a new service order is disabled in this prototype.')">${ICONS.plus} Schedule service</button></div>
+    </div>
+    <div class="grid-metrics gm-3">
+      <div class="metric-card accent-warn">
+        <div class="metric-top"><span class="metric-label">Due This Week</span><div class="metric-icon">${ICONS.clock}</div></div>
+        <div class="metric-value num">${dueWeek.length}</div>
+        <div class="metric-foot">Vehicles needing service within 7 days</div>
+      </div>
+      <div class="metric-card accent-danger">
+        <div class="metric-top"><span class="metric-label">Overdue</span><div class="metric-icon">${ICONS.alertTriangle}</div></div>
+        <div class="metric-value num">${overdue.length}</div>
+        <div class="metric-foot">Past their scheduled service date</div>
+      </div>
+      <div class="metric-card accent-info">
+        <div class="metric-top"><span class="metric-label">Vehicles Unavailable</span><div class="metric-icon">${ICONS.wrench}</div></div>
+        <div class="metric-value num">${unavailable.length}</div>
+        <div class="metric-foot">Currently out of the rentable fleet</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <div class="search-mini"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-400);"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="maintSearch" placeholder="Search vehicle, plate, service type…" oninput="applyMaintFilters()"></div>
+        <select id="maintStatus" onchange="applyMaintFilters()">
+          <option value="all">All statuses</option><option>Upcoming</option><option value="Due Soon">Due Soon</option><option>Overdue</option><option>Completed</option>
+        </select>
+        <span class="filter-count" id="maintCount">${DATA.maintenance.length} records</span>
+      </div>
+      <div id="maintResults">${maintTable(maintFilteredList())}</div>
+    </div>
+  `;
+}
+</script>
+<script>
+/* =========================================================================
+   SETTINGS
+   ========================================================================= */
+const TEAM = [
+  {name:'Lua Coelho', role:'Administrator', email:'lua.coelho@moonlightrentalcar.com', initials:'LC'},
+  {name:'Renata Ferreira', role:'Front Desk Lead', email:'renata.f@moonlightrentalcar.com', initials:'RF'},
+  {name:'Marcelo Duarte', role:'Maintenance Coordinator', email:'marcelo.d@moonlightrentalcar.com', initials:'MD'},
+];
+function toggleSetting(el){ el.classList.toggle('on'); }
+function renderSettings(){
+  return `
+    <div class="page-head">
+      <div><h1>Settings</h1><p class="sub">Company profile, notifications, and team access.</p></div>
+    </div>
+    <div class="row-2col even">
+      <div class="panel">
+        <div class="panel-head"><h3>Company Profile</h3></div>
+        <div class="panel-body pad">
+          <div class="kv-grid">
+            <div class="kv"><label>Company name</label><b>Moonlight Rental Car LLC</b></div>
+            <div class="kv"><label>DOT / rental license</label><b class="mono">FL-RENT-88213</b></div>
+            <div class="kv"><label>Primary location</label><b>1420 NW 79th Ave, Miami, FL 33126</b></div>
+            <div class="kv"><label>Business hours</label><b>7:00 AM – 9:00 PM daily</b></div>
+            <div class="kv"><label>Support phone</label><b>(305) 555-0100</b></div>
+            <div class="kv"><label>Support email</label><b>ops@moonlightrentalcar.com</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Notifications</h3></div>
+        <div class="panel-body pad">
+          <div class="settings-row"><div><b>Late return alerts</b><span>Notify ops when a rental passes its return time</span></div><button class="toggle on" onclick="toggleSetting(this)"></button></div>
+          <div class="settings-row"><div><b>SunPass unpaid reminders</b><span>Daily digest of unassigned or unpaid tolls</span></div><button class="toggle on" onclick="toggleSetting(this)"></button></div>
+          <div class="settings-row"><div><b>Maintenance due reminders</b><span>Alert 7 days before scheduled service</span></div><button class="toggle on" onclick="toggleSetting(this)"></button></div>
+          <div class="settings-row"><div><b>New reservation emails</b><span>Send confirmation copy to the front desk inbox</span></div><button class="toggle" onclick="toggleSetting(this)"></button></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="panel-head"><h3>Team Access</h3><button class="btn btn-sm btn-primary" onclick="toast('Inviting teammates is disabled in this prototype.')">${ICONS.plus} Invite teammate</button></div>
+      <div class="panel-body">
+        <div class="mini-list" style="padding:4px 10px;">
+          ${TEAM.map(t=>`
+            <div class="mini-row">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="cell-avatar">${t.initials}</div>
+                <div><div class="t1">${esc(t.name)}</div><div class="t2">${esc(t.email)}</div></div>
+              </div>
+              <span class="badge badge-neutral">${esc(t.role)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="panel-head"><h3>Data &amp; Integrations</h3></div>
+      <div class="panel-body pad">
+        <p style="font-size:13px;color:var(--ink-600);line-height:1.6;">This is a visual prototype — fleet, rental, and payment data shown here is fictional and stored only in your browser session. When you're ready to move to production, this screen is where the SunPass API, payment processor, and vehicle telematics integrations will be connected.</p>
+      </div>
+    </div>
+  `;
+}
+</script>
+<script>
+/* =========================================================================
+   DRAWERS — record detail
+   ========================================================================= */
+function drawerShell(head, body, foot){
+  return `<div class="drawer-head">${head}<button class="drawer-close" onclick="closeDrawer()">${ICONS.close}</button></div>
+    <div class="drawer-body">${body}</div>
+    ${foot ? `<div class="drawer-foot">${foot}</div>` : ''}`;
+}
+
+function openVehicleDrawer(id){
+  const v = vehicleById(id);
+  const history = DATA.rentals.filter(r=>r.vehicle===id).sort((a,b)=>parseISO(b.pickup)-parseISO(a.pickup));
+  const maint = DATA.maintenance.filter(m=>m.vehicle===id).sort((a,b)=>parseISO(b.dueDate)-parseISO(a.dueDate));
+  const tolls = DATA.sunpass.filter(t=>t.vehicle===id).sort((a,b)=>parseISO(b.date)-parseISO(a.date));
+  const current = v.currentRental ? api.getRental(v.currentRental) : (v.status==='Reserved' ? DATA.reservations.find(r=>r.vehicle===id && (r.status==='Confirmed'||r.status==='Pending')) : null);
+
+  const head = `<div><h2>${esc(vehicleLabel(v))}</h2><div class="sub"><span class="plate">${esc(v.plate)}</span> &nbsp;${badge(v.status)}</div></div>`;
+
+  const body = `
+    <div class="veh-photo tone-${vehiclePhotoTone(v.category)}" style="border-radius:12px;height:140px;margin-bottom:18px;">${vehicleIcon(v.category)}</div>
+    <div class="dsection">
+      <div class="dsection-title">Vehicle Details</div>
+      <div class="kv-grid">
+        <div class="kv"><label>Category</label><b>${esc(v.category)}</b></div>
+        <div class="kv"><label>Color</label><b>${esc(v.color)}</b></div>
+        <div class="kv"><label>Mileage</label><b class="num">${v.mileage.toLocaleString('en-US')} mi</b></div>
+        <div class="kv"><label>Daily Rate</label><b class="num">${fmtMoney(v.dailyRate)}</b></div>
+        <div class="kv"><label>Last Service</label><b>${fmtDate(v.lastService)}</b></div>
+        <div class="kv"><label>Next Service</label><b>${fmtDate(v.nextService)}</b></div>
+      </div>
+    </div>
+    ${current ? `
+    <div class="dsection">
+      <div class="dsection-title">${v.status==='Reserved' ? 'Upcoming Reservation' : 'Current Rental'}</div>
+      <div class="mini-row" style="cursor:pointer;" onclick="${v.status==='Reserved' ? `openReservationDrawer('${current.id}')` : `openRentalDrawer('${current.id}')`}">
+        <div><div class="t1">${esc(customerById(v.currentCustomer).name)}</div><div class="t2">${v.status==='Reserved' ? `Pickup ${fmtDate(current.pickup)}, ${esc(current.pickupTime)}` : `Due back ${fmtDate(current.dropoff)}`}</div></div>
+        <span style="color:var(--accent);">${ICONS.chevronRight}</span>
+      </div>
+    </div>` : ''}
+    <div class="dsection">
+      <div class="dsection-title">Rental History</div>
+      <div class="mini-list">
+        ${history.length ? history.map(r=>`
+          <div class="mini-row" style="cursor:pointer;" onclick="openRentalDrawer('${r.id}')">
+            <div><div class="t1">${esc(customerById(r.customer).name)}</div><div class="t2">${fmtDate(r.pickup)} – ${fmtDate(r.dropoff)}</div></div>
+            ${badge(r.status)}
+          </div>`).join('') : `<div class="empty-mini">No rental history yet.</div>`}
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Maintenance History</div>
+      <div class="mini-list">
+        ${maint.length ? maint.map(m=>`
+          <div class="mini-row">
+            <div><div class="t1">${esc(m.type)}</div><div class="t2">Due ${fmtDate(m.dueDate)} · ${m.mileage.toLocaleString('en-US')} mi</div></div>
+            ${badge(m.status)}
+          </div>`).join('') : `<div class="empty-mini">No maintenance recorded yet.</div>`}
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">SunPass History</div>
+      <div class="mini-list">
+        ${tolls.length ? tolls.map(t=>`
+          <div class="mini-row">
+            <div><div class="t1">${esc(t.location)}</div><div class="t2">${fmtDate(t.date)} · ${esc(customerById(t.customer).name)}</div></div>
+            <div style="text-align:right;"><div class="t1 num">${fmtMoney(t.amount)}</div>${badge(t.status)}</div>
+          </div>`).join('') : `<div class="empty-mini">No SunPass activity yet.</div>`}
+      </div>
+    </div>
+  `;
+  openDrawer(drawerShell(head, body));
+}
+
+function openRentalDrawer(id){
+  const r = api.getRental(id), v = vehicleById(r.vehicle), c = customerById(r.customer);
+  const days = rentalDays(r);
+  const base = days * r.dailyRate;
+  const total = rentalTotal(r);
+  const pays = DATA.payments.filter(p=>p.rental===id);
+
+  const head = `<div><h2>${esc(c.name)}</h2><div class="sub">${esc(vehicleLabel(v))} &nbsp;${badge(r.status)}</div></div>`;
+  const body = `
+    <div class="dsection">
+      <div class="dsection-title">Customer</div>
+      <div class="mini-row" style="cursor:pointer;" onclick="openCustomerDrawer('${c.id}')">
+        <div style="display:flex;align-items:center;gap:10px;"><div class="cell-avatar">${initials(c.name)}</div><div><div class="t1">${esc(c.name)}</div><div class="t2">${esc(c.phone)}</div></div></div>
+        <span style="color:var(--accent);">${ICONS.chevronRight}</span>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Vehicle</div>
+      <div class="mini-row" style="cursor:pointer;" onclick="openVehicleDrawer('${v.id}')">
+        <div style="display:flex;align-items:center;gap:10px;"><div class="veh-thumb">${vehicleIcon(v.category)}</div><div><div class="t1">${esc(vehicleLabel(v))}</div><div class="t2"><span class="plate">${esc(v.plate)}</span></div></div></div>
+        <span style="color:var(--accent);">${ICONS.chevronRight}</span>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Rental Period</div>
+      <div class="kv-grid">
+        <div class="kv"><label>Pickup</label><b>${fmtDate(r.pickup)}</b></div>
+        <div class="kv"><label>Return</label><b>${fmtDate(r.dropoff)}${r.dropoffTime?`, ${esc(r.dropoffTime)}`:''}</b></div>
+        <div class="kv"><label>Duration</label><b>${days} day${days>1?'s':''}</b></div>
+        <div class="kv"><label>Payment</label><b>${badge(r.payment)}</b></div>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Charges</div>
+      <div class="line-item"><span>Daily rate</span><b>${fmtMoney(r.dailyRate)} × ${days}</b></div>
+      <div class="line-item"><span>Base rental</span><b>${fmtMoney(base)}</b></div>
+      <div class="line-item"><span>Extras</span><b>${fmtMoney(r.extras||0)}</b></div>
+      <div class="line-item"><span>SunPass tolls</span><b>${fmtMoney(r.sunpass||0)}</b></div>
+      <div class="line-item"><span>Security deposit (held)</span><b>${fmtMoney(r.deposit)}</b></div>
+      <div class="line-item total"><span>Final total</span><b>${fmtMoney(total)}</b></div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Payment History</div>
+      <div class="mini-list">
+        ${pays.length ? pays.map(p=>`
+          <div class="mini-row">
+            <div><div class="t1">${esc(p.description)}</div><div class="t2">${esc(p.method)} · ${fmtDate(p.date)}</div></div>
+            <div style="text-align:right;"><div class="t1 num">${fmtMoney(p.amount)}</div>${badge(p.status)}</div>
+          </div>`).join('') : `<div class="empty-mini">No payments recorded for this rental yet.</div>`}
+      </div>
+    </div>
+  `;
+  const foot = (r.status==='Active'||r.status==='Late') ? `<button class="btn" onclick="closeDrawer()">Close</button><button class="btn btn-primary" onclick="markReturned('${r.id}')">${ICONS.check} Mark as Returned</button>` : `<button class="btn" onclick="closeDrawer()">Close</button>`;
+  openDrawer(drawerShell(head, body, foot));
+}
+function markReturned(id){
+  const r = api.getRental(id), v = vehicleById(r.vehicle);
+  r.status = 'Completed';
+  v.status = 'Available'; v.currentCustomer = null; v.currentRental = null;
+  closeDrawer();
+  toast('Vehicle marked as returned and now available.');
+  renderNav();
+  renderPage();
+}
+
+function openReservationDrawer(id){
+  const r = api.getReservation(id), v = vehicleById(r.vehicle), c = customerById(r.customer);
+  const days = Math.max(1, daysBetween(r.pickup, r.dropoff));
+  const head = `<div><h2>${esc(c.name)}</h2><div class="sub">${esc(vehicleLabel(v))} &nbsp;${r.status==='Converted'?badge('Converted','Converted to Rental'):badge(r.status)}</div></div>`;
+  const body = `
+    <div class="dsection">
+      <div class="dsection-title">Customer</div>
+      <div class="mini-row" style="cursor:pointer;" onclick="openCustomerDrawer('${c.id}')">
+        <div style="display:flex;align-items:center;gap:10px;"><div class="cell-avatar">${initials(c.name)}</div><div><div class="t1">${esc(c.name)}</div><div class="t2">${esc(c.phone)}</div></div></div>
+        <span style="color:var(--accent);">${ICONS.chevronRight}</span>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Vehicle</div>
+      <div class="mini-row" style="cursor:pointer;" onclick="openVehicleDrawer('${v.id}')">
+        <div style="display:flex;align-items:center;gap:10px;"><div class="veh-thumb">${vehicleIcon(v.category)}</div><div><div class="t1">${esc(vehicleLabel(v))}</div><div class="t2"><span class="plate">${esc(v.plate)}</span></div></div></div>
+        <span style="color:var(--accent);">${ICONS.chevronRight}</span>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Reservation Details</div>
+      <div class="kv-grid">
+        <div class="kv"><label>Pickup</label><b>${fmtDate(r.pickup)}</b></div>
+        <div class="kv"><label>Pickup time</label><b>${esc(r.pickupTime)}</b></div>
+        <div class="kv"><label>Return</label><b>${fmtDate(r.dropoff)}</b></div>
+        <div class="kv"><label>Duration</label><b>${days} day${days>1?'s':''}</b></div>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="line-item total"><span>Estimated total</span><b>${fmtMoney(days*v.dailyRate)}</b></div>
+    </div>
+    ${r.rental ? `<div class="dsection"><div class="dsection-title">Linked Rental</div><div class="mini-row" style="cursor:pointer;" onclick="openRentalDrawer('${r.rental}')"><div class="t1">${r.rental}</div><span style="color:var(--accent);">${ICONS.chevronRight}</span></div></div>` : ''}
+  `;
+  const foot = r.status==='Confirmed' ? `<button class="btn" onclick="closeDrawer()">Close</button><button class="btn btn-primary" onclick="closeDrawer();openConvertModal('${r.id}')">${ICONS.arrowRight} Convert to Rental</button>` : `<button class="btn" onclick="closeDrawer()">Close</button>`;
+  openDrawer(drawerShell(head, body, foot));
+}
+
+function openCustomerDrawer(id){
+  const c = customerById(id);
+  const rentals = DATA.rentals.filter(r=>r.customer===id).sort((a,b)=>parseISO(b.pickup)-parseISO(a.pickup));
+  const pays = DATA.payments.filter(p=>p.customer===id).sort((a,b)=>parseISO(b.date)-parseISO(a.date));
+  const tolls = DATA.sunpass.filter(t=>t.customer===id).sort((a,b)=>parseISO(b.date)-parseISO(a.date));
+  const head = `<div><h2>${esc(c.name)}</h2><div class="sub">${badge(c.status)} ${c.docStatus==='Pending'?badge('Pending','Docs pending'):''}</div></div>`;
+  const body = `
+    <div class="dsection">
+      <div class="dsection-title">Personal Information</div>
+      <div class="kv-grid">
+        <div class="kv"><label>Phone</label><b>${esc(c.phone)}</b></div>
+        <div class="kv"><label>Email</label><b style="word-break:break-word;">${esc(c.email)}</b></div>
+        <div class="kv" style="grid-column:1/-1;"><label>Address</label><b>${esc(c.address)}</b></div>
+        <div class="kv"><label>Customer since</label><b>${fmtDate(c.joined)}</b></div>
+        <div class="kv"><label>Total spent</label><b class="num">${fmtMoney(customerTotalSpent(c.id))}</b></div>
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Documents</div>
+      <div class="doc-row">${ICONS.doc}<span class="t1">Driver's License — ${esc(c.license)}</span>${badge(c.docStatus)}</div>
+      <div class="doc-row">${ICONS.doc}<span class="t1">License number</span><span class="mono" style="font-size:12px;color:var(--ink-600);">${esc(c.licenseNo)}</span></div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Rental History (${rentals.length})</div>
+      <div class="mini-list">
+        ${rentals.length ? rentals.map(r=>`
+          <div class="mini-row" style="cursor:pointer;" onclick="openRentalDrawer('${r.id}')">
+            <div><div class="t1">${esc(vehicleLabel(vehicleById(r.vehicle)))}</div><div class="t2">${fmtDate(r.pickup)} – ${fmtDate(r.dropoff)}</div></div>
+            ${badge(r.status)}
+          </div>`).join('') : `<div class="empty-mini">No rentals yet.</div>`}
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Payment History</div>
+      <div class="mini-list">
+        ${pays.length ? pays.map(p=>`
+          <div class="mini-row">
+            <div><div class="t1">${esc(p.description)}</div><div class="t2">${fmtDate(p.date)}</div></div>
+            <div style="text-align:right;"><div class="t1 num">${fmtMoney(p.amount)}</div>${badge(p.status)}</div>
+          </div>`).join('') : `<div class="empty-mini">No payment history yet.</div>`}
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">SunPass</div>
+      <div class="mini-list">
+        ${tolls.length ? tolls.map(t=>`
+          <div class="mini-row">
+            <div><div class="t1">${esc(t.location)}</div><div class="t2">${fmtDate(t.date)}</div></div>
+            <div style="text-align:right;"><div class="t1 num">${fmtMoney(t.amount)}</div>${badge(t.status)}</div>
+          </div>`).join('') : `<div class="empty-mini">No SunPass activity yet.</div>`}
+      </div>
+    </div>
+    <div class="dsection">
+      <div class="dsection-title">Internal Notes</div>
+      <textarea id="custNotes_${c.id}" class="note-box" style="width:100%;border:1px solid var(--line);font-family:inherit;" rows="4" onblur="saveNotes('${c.id}', this.value)" placeholder="Add a private note visible only to staff…">${esc(c.notes||'')}</textarea>
+    </div>
+  `;
+  openDrawer(drawerShell(head, body));
+}
+function saveNotes(id, val){
+  const c = customerById(id);
+  c.notes = val;
+  toast('Internal note saved.');
+}
+</script>
+<script>
+/* =========================================================================
+   INIT
+   ========================================================================= */
+const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+(function(){
+  const _renderNav = renderNav;
+  renderNav = function(){ _renderNav(); renderAlertsDropdown(); };
+})();
+
+function init(){
+  document.getElementById('topbarDate').textContent = `${WEEKDAYS[TODAY.getDay()]}, ${fmtDate(isoToday())}`;
+  const validPages = [...NAV_ITEMS.map(n=>n.id), 'settings'];
+  const hash = window.location.hash.replace('#','');
+  state.page = validPages.includes(hash) ? hash : 'dashboard';
+  renderNav();
+  renderPage();
+}
+window.addEventListener('hashchange', ()=>{
+  const hash = window.location.hash.replace('#','');
+  const validPages = [...NAV_ITEMS.map(n=>n.id), 'settings'];
+  if(validPages.includes(hash) && hash !== state.page){
+    state.page = hash;
+    state.filters = {};
+    renderNav();
+    renderPage();
+  }
+});
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAllOverlays(); });
+init();
+</script>
